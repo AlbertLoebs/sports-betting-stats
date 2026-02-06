@@ -1,0 +1,18 @@
+# Frontend
+nba-sportsbook-frontend/node_modules/
+nba-sportsbook-frontend/dist/
+
+# Backend
+nba-sportsbook/target/
+nba-sportsbook/.mvn/
+nba-sportsbook-backend/target/
+nba-sportsbook-backend/.mvn/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Env
+.env
