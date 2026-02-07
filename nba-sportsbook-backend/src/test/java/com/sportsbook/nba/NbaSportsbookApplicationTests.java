@@ -1,4 +1,4 @@
-package com.sportsbook.nba_sportsbook;
+package com.sportsbook.nba;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
