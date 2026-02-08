@@ -1,4 +1,7 @@
 package com.sportsbook.nba.games.dto;
 
-public class TeamSummaryDto {
-}
+public record TeamSummaryDto (
+        String abbreviation,
+        String displayName,
+        Integer score
+){}
