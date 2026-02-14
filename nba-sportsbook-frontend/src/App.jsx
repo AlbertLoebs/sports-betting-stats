@@ -1,20 +1,25 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
+import { fetchTodaysGames } from './services/GamesApi'
 import './App.css'
 
 function App() {
   const [message, setMessage] = useState("Loading...")
 
   useEffect(() => {
-    fetch("http://localhost:8080/api/games/today")
-    .then((res) => res.text())
-    .then((data) => setMessage(data))
-    .catch((err) => {
-      console.error(err);
-      setMessage("Error connecting to the backend");
-    });
+    async function testFetch() {
+      try {
+        const data = await fetchTodaysGames();
+        console.log("Games from the backend:", data);
+        setMessage(`Fetched ${data.length} games. Check console.`);
+      } catch (error) {
+        console.error("Error fetching games:", error);
+        setMessage("Fetch failed. Check console for error.");
+      }
+    }
 
-  },[]);
+    testFetch(); 
+  }, []);
 
   return (
     <div>
