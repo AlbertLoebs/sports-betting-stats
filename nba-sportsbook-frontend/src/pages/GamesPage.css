@@ -1,0 +1,83 @@
+/* page wrapper */
+.games-page{
+    color : lightgray;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+}
+
+/* header */
+.games-header{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+.games-header h1{
+    margin: 0;
+}
+
+.games-header button{
+    padding : 6px 10px;
+    border : 1px solid gray;
+    background-color: white;
+    cursor : pointer;
+    color : black;
+}
+
+.games-header button:hover{
+    background-color: lightblue;
+}
+
+/*grid layout */
+.games-grid{
+    display: flex;
+    flex-wrap: wrap;
+    gap : 15px;
+}
+
+/*individual cards */
+.game-card{
+    flex: 1 1 300px;
+    background-color: darkblue;
+    border: 1px solid gray;
+    padding : 15px;
+}
+
+/* top section of a card */
+.game-top{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+/* status badge */
+.status-badge{
+    padding : 4px 8px;
+    font-size : 12px;
+    text-decoration: underline;
+}
+
+/* start time */
+.start-time{
+    font-size : 12px;
+    color : darkgray;
+}
+
+/* team row */
+.teams-row{
+    display: flex;
+    justify-content: space-between;
+}
+
+/* team names */
+.team-name{
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+/* scores */
+.team-score {
+    font-size : 12px;
+    font-weight: bold;
+}

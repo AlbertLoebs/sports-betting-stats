@@ -1,5 +1,3 @@
-
-
 // fetch games from the backend
 // returns an array of gamesummary dto objects
 export async function fetchTodaysGames (){
