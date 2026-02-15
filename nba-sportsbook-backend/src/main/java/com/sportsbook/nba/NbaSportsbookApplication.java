@@ -10,8 +10,6 @@ public class NbaSportsbookApplication {
 
 		SpringApplication.run(NbaSportsbookApplication.class, args);
 
-        System.out.print("Test");
-
     }
 
 }
