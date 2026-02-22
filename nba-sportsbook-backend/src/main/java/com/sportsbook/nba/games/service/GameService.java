@@ -47,21 +47,21 @@ public class GameService {
             // loop through each game
             for (JsonNode event : events) {
                 // basic game info
-                String gameId = event.path("id").asText(null);
-                String startTime = event.path("date").asText(null);
+                String gameId = event.path("id").asText();
+                String startTime = event.path("date").asText();
 
                 // Game status is nested inside status -> type -> description
                 String status = event.path("status")
                         .path("type")
                         .path("description")
-                        .asText(null);
+                        .asText();
 
                 // Fallback if description is missing
                 if (status == null || status.isBlank()) {
                     status = event.path("status")
                             .path("type")
                             .path("name")
-                            .asText(null);
+                            .asText();
                 }
 
                 // each event has a competitions array
@@ -86,17 +86,17 @@ public class GameService {
                     // team info is nested inside team
                     JsonNode team = comp.path("team");
 
-                    String abbr = team.path("abbreviation").asText(null);
-                    String name = team.path("displayName").asText(null);
+                    String abbr = team.path("abbreviation").asText();
+                    String name = team.path("displayName").asText();
 
                     // ESPN stores score as a string have to convert
-                    Integer score = parseNullableInt(comp.path("score").asText(null));
+                    Integer score = parseNullableInt(comp.path("score").asText());
 
                     // build internal team DTO
                     TeamSummaryDto teamDTO =
                             new TeamSummaryDto(abbr, name, score);
 
-                    // asign home away
+                    // assign home away
                     if ("home".equalsIgnoreCase(homeAway)) {
                         home = teamDTO;
                     }
@@ -105,7 +105,7 @@ public class GameService {
                         away = teamDTO;
                     }
                 }
-                    // if somehting is missing, skip safely
+                    // if something is missing, skip safely
                     if (home == null || away == null) continue;
 
                     // build final gamesummarydto for the frontend
