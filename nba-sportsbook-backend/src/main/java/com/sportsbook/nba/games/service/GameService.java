@@ -3,36 +3,138 @@ package com.sportsbook.nba.games.service;
 import com.sportsbook.nba.games.dto.GameSummaryDto;
 import com.sportsbook.nba.games.dto.TeamSummaryDto;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class GameService {
 
-    public List<GameSummaryDto> getTodaysGames(){
-        return List.of(
-                new GameSummaryDto(
-                        "Test 1",
-                        "2026-02-08T03:00:00Z",
-                        "Scheduled",
-                        new TeamSummaryDto("Lal", "Lakers", 101),
-                        new TeamSummaryDto("GSW", "Warriors", 100)
-                    ),
-                new GameSummaryDto(
-                        "Test 2",
-                        "2026-02-08T03:00:00Z",
-                        "Scheduled",
-                        new TeamSummaryDto("Lal", "Lakers", 101),
-                        new TeamSummaryDto("GSW", "Warriors", 1200)
-                ),
-                new GameSummaryDto(
-                        "Test 3",
-                        "2026-02-08T03:00:00Z",
-                        "Scheduled",
-                        new TeamSummaryDto("Lal", "Lakers", 1021),
-                        new TeamSummaryDto("GSW", "Warriors", 100)
-                )
-            );
+    // ESPN public scoreboard endpoint for nba games
+    private static final String ESPN_URL =
+            "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard";
+
+    // Used to make HTTP requests to ESPN
+    private final RestClient restClient;
+
+    // Used to parse JSON into a structure, will use JsonNode tree
+    private final ObjectMapper objectMapper;
+
+    // Spring injects objectmapper automatically
+    public GameService (ObjectMapper objectMapper){
+        this.restClient = RestClient.create();
+        this.objectMapper = objectMapper;
     }
 
+    public List<GameSummaryDto> getTodaysGames() {
+
+        try {
+            // Call ESPN API, get a raw JSON response as a string
+            String json = restClient.get().uri(ESPN_URL).retrieve().body(String.class);
+
+            // convert json string into a jsonNode tree structure
+            // makes it easier to deal with json fields
+            JsonNode root = objectMapper.readTree(json);
+
+            // ESPN scoreboard json contains an events array holding info
+            JsonNode events = root.path("events");
+
+            List<GameSummaryDto> result = new ArrayList<>();
+
+            // loop through each game
+            for (JsonNode event : events) {
+                // basic game info
+                String gameId = event.path("id").asText(null);
+                String startTime = event.path("date").asText(null);
+
+                // Game status is nested inside status -> type -> description
+                String status = event.path("status")
+                        .path("type")
+                        .path("description")
+                        .asText(null);
+
+                // Fallback if description is missing
+                if (status == null || status.isBlank()) {
+                    status = event.path("status")
+                            .path("type")
+                            .path("name")
+                            .asText(null);
+                }
+
+                // each event has a competitions array
+                // nba games have 1 competition object
+                JsonNode competition = event.path("competitions").isArray()
+                        && event.path("competitions").size() > 0
+                        ? event.path("competitions").get(0)
+                        : null;
+
+                // if competition is missing, skip safely
+                if (competition == null) continue;
+                TeamSummaryDto home = null;
+                TeamSummaryDto away = null;
+
+                // inside competition there is competitors which contains home and away teams
+                JsonNode competitors = competition.path("competitors");
+
+                for (JsonNode comp : competitors) {
+                    // determines if they are home or away
+                    String homeAway = comp.path("homeAway").asText("");
+
+                    // team info is nested inside team
+                    JsonNode team = comp.path("team");
+
+                    String abbr = team.path("abbreviation").asText(null);
+                    String name = team.path("displayName").asText(null);
+
+                    // ESPN stores score as a string have to convert
+                    Integer score = parseNullableInt(comp.path("score").asText(null));
+
+                    // build internal team DTO
+                    TeamSummaryDto teamDTO =
+                            new TeamSummaryDto(abbr, name, score);
+
+                    // asign home away
+                    if ("home".equalsIgnoreCase(homeAway)) {
+                        home = teamDTO;
+                    }
+
+                    if ("away".equalsIgnoreCase(homeAway)) {
+                        away = teamDTO;
+                    }
+                }
+                    // if somehting is missing, skip safely
+                    if (home == null || away == null) continue;
+
+                    // build final gamesummarydto for the frontend
+                    result.add(
+                            new GameSummaryDto(
+                                    gameId,
+                                    startTime,
+                                    status,
+                                    home,
+                                    away
+                            )
+                    );
+                }
+                return result;
+
+        } catch (Exception e) {
+            // if ESPN fails or parsing return an empty list
+            return List.of();
+        }
+    }
+
+    // helper method to convert string to integer
+    private Integer parseNullableInt(String s) {
+        if (s == null || s.isBlank()) return null;
+
+        try {
+            return Integer.parseInt(s);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
 }
