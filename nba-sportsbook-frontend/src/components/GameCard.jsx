@@ -12,6 +12,28 @@ function GameCard({ game }) {
         return score ?? "-";
     }
 
+    // format quarters/ot
+    function quarterFormat(q){
+        if (q == null || q === 0) return null;
+        if (q <= 4) return `Q${q}`;
+        if (q === 5) return "OT";
+        else return `${q - 4}OT`;
+    }
+
+    // build live display string
+    function live(){
+        const status = (game.status || "").toLowerCase();
+        const isLive = status.includes("progress") || status.includes("live");
+
+        if (!isLive) return null;
+
+        const quarterLabel = quarterFormat(game.quarter);
+        if (!quarterLabel || !game.clock) return null;
+        return `${quarterLabel} ${game.clock}`;
+    }
+
+    const liveInfo = live();
+
     return(
     // key must be unique use the game id
     <div key={game.gameId} className="game-card">
@@ -22,9 +44,16 @@ function GameCard({ game }) {
                 {game.status}
             </span>
 
+            {/* if game is live, show quarter + clock */}
+            {liveInfo ? (
+                <span className="live-time">
+                    {liveInfo}
+                </span>
+            ) : (
             <span className="start-time">
                 {formatTime(game.startTime)}
             </span>
+            )}
         </div>
 
         {/* Teams section */}
