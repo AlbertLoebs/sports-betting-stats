@@ -5,6 +5,8 @@ public record GameSummaryDto(
         String startTime,
         String status,
         TeamSummaryDto homeTeam,
-        TeamSummaryDto awayTeam
+        TeamSummaryDto awayTeam,
+        Integer quarter,
+        String clock
 ){}
 

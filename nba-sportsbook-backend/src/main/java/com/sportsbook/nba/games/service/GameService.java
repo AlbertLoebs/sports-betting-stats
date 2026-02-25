@@ -79,6 +79,10 @@ public class GameService {
                 // inside competition there is competitors which contains home and away teams
                 JsonNode competitors = competition.path("competitors");
 
+                Integer quarter = parseNullableInt(competition.path("status").path("period").asText());
+                String clock = blankToNull(competition.path("status").path("displayClock").asText());
+
+
                 for (JsonNode comp : competitors) {
                     // determines if they are home or away
                     String homeAway = comp.path("homeAway").asText("");
@@ -115,7 +119,9 @@ public class GameService {
                                     startTime,
                                     status,
                                     home,
-                                    away
+                                    away,
+                                    quarter,
+                                    clock
                             )
                     );
                 }
@@ -137,4 +143,10 @@ public class GameService {
             return null;
         }
     }
+
+    // return null if the string is null or blank
+    private String blankToNull(String s) {
+        return (s == null || s.isBlank()) ? null : s;
+    }
+
 }
