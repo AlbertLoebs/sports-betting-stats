@@ -23,6 +23,15 @@ public class GameService {
     // Used to parse JSON into a structure, will use JsonNode tree
     private final ObjectMapper objectMapper;
 
+    // cache results for 30 seconds
+    private static final long CACHE_MS = 30_000;
+
+    // time of last successful ESPN fetch
+    private volatile long lastFetchTime = 0;
+
+    // cached list of games
+    private volatile List<GameSummaryDto> cachedGames = List.of();
+
     // Spring injects objectmapper automatically
     public GameService (ObjectMapper objectMapper){
         this.restClient = RestClient.create();
@@ -30,6 +39,35 @@ public class GameService {
     }
 
     public List<GameSummaryDto> getTodaysGames() {
+        long now = System.currentTimeMillis();
+
+        // if cache is still fresh, return cached data
+        if ((now - lastFetchTime) < CACHE_MS && !cachedGames.isEmpty()) {
+            return cachedGames;
+        }
+
+        synchronized (this) {
+            now = System.currentTimeMillis();
+
+            // check again after entering synchronized block
+            if ((now - lastFetchTime) < CACHE_MS && !cachedGames.isEmpty()) {
+                return cachedGames;
+            }
+
+            List<GameSummaryDto> freshGames = fetchFromEspn();
+
+            // only update cache if fetch worked
+            if (!freshGames.isEmpty()) {
+                cachedGames = freshGames;
+                lastFetchTime = now;
+            }
+
+            return freshGames;
+        }
+    }
+
+
+    public List<GameSummaryDto> fetchFromEspn() {
 
         try {
             // Call ESPN API, get a raw JSON response as a string

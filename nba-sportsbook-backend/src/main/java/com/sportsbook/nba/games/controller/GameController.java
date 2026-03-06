@@ -18,7 +18,7 @@ public class GameController {
 
     @GetMapping("/api/games/today")
     public List<GameSummaryDto> todaysGames(){
-        return gameService.getTodaysGames();
+        return gameService.fetchFromEspn();
     }
 
 }
