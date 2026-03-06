@@ -1,5 +1,5 @@
 
-function GameCard({ game }) {
+function GameCard({ game, odds }) {
 
     // convert the time from the backend into readable time
     function formatTime(timeString) {
@@ -10,6 +10,12 @@ function GameCard({ game }) {
     // show a - when score is null
     function scoreOrDash(score) {
         return score ?? "-";
+    }
+
+    // format odds to show pos +
+    function formatOdds(price) {
+        if (price == null) return "-";
+        return price > 0 ? `+${price}` : `${price}`;
     }
 
     // format quarters/ot
@@ -76,6 +82,16 @@ function GameCard({ game }) {
                 </div>
                 <div className="team-score">
                     {scoreOrDash(game.homeTeam.score)}
+                </div>
+            </div>
+
+            {/* odds */}
+            <div className="team-odds-column">
+                <div className="team-odds">
+                    {odds ? formatOdds(odds.moneyline.awayPrice) : "-"}
+                </div>
+                <div className="team-odds">
+                    {odds ? formatOdds(odds.moneyline.homePrice) : "-"}
                 </div>
             </div>
 

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchTodaysGames } from "../services/GamesApi";
+import { fetchTodaysOdds } from "../services/GamesApi";
 import GameCard from "../components/GameCard";
 import './GamesPage.css'
 
@@ -8,6 +9,9 @@ function GamesPage() {
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // stores odds
+  const [odds, setOdds] = useState([]);
 
   // store current interval id so we can clear it
   const intervalRef = useRef(null);
@@ -45,10 +49,21 @@ function GamesPage() {
     }
   }
 
+  // fetch odds separately
+  async function loadOdds(){
+    try {
+      const data = await fetchTodaysOdds();
+      setOdds(data);
+    } catch (error){
+      console.log("Failed to load data: ", error);
+    }
+  }
+
   // this runs affect componet is first rendered,
   //  [] means only run when componet mounts
   useEffect(() => {
     loadGames(true);
+    loadOdds();
   }, [])
 
   // polling effect
@@ -110,16 +125,30 @@ function GamesPage() {
       {/* Header section */}
       <div className="games-header">
         <h1>Today's Games</h1>
-      <button onClick={() => loadGames(false)}>Refresh</button>
+      <button onClick={() => {loadGames(false); loadOdds}}>Refresh</button>
       </div>
 
       {/* Grid layout for game cards */}
       <div className="games-grid">
-        
-        {/* Loop through the games array and render one GameCard for each game */}
-        {games.map((game) => (
-          <GameCard key={game.gameId} game={game} />
-        ))}
+
+        {/* render one GameCard per game */}
+        {games.map((game) => {
+
+          // find matching odds by team names
+          const matchingOdds = odds.find(
+            (oddsGame) =>
+              oddsGame.homeTeam === game.homeTeam.displayName &&
+              oddsGame.awayTeam === game.awayTeam.displayName
+          );
+
+          return (
+            <GameCard
+              key={game.gameId}
+              game={game}
+              odds={matchingOdds}
+            />
+          );
+        })}
 
       </div>
     </div>

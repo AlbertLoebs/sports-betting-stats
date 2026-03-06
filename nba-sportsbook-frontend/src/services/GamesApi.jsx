@@ -11,3 +11,14 @@ export async function fetchTodaysGames (){
     return response.json();
 
 }
+
+// fetch todays nba games from spring boot 
+export async function fetchTodaysOdds(){
+    const response = await fetch("http://localhost:8080/api/odds/today");
+
+    if (!response.ok) {
+        throw new error("Failed to fetch game odds");
+    }
+    
+    return response.json();
+}
