@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchTodaysGames } from "../services/GamesApi";
 import GameCard from "../components/GameCard";
 import './GamesPage.css'
@@ -9,12 +9,23 @@ function GamesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // store current interval id so we can clear it
+  const intervalRef = useRef(null);
+
+  function isLiveGame(game){
+    const s = (game.status || "").toLowerCase();
+    return s.includes("progress") || s.includes("live");
+  }
+
   // fetch and update state
-  async function loadGames() {
+  async function loadGames(showLoading = false) {
 
     try {
-      // when starting a fetch show loading and clear any previous error
-      setLoading(true);
+      // only show loading when we want to, this avoid flicker
+      if (showLoading){
+        setLoading(true);
+      }
+
       setError(null);
 
       // call api layer
@@ -28,15 +39,38 @@ function GamesPage() {
       setError(error.message || "Failed to load")
     } finally {
       // will run with pass or fail, stops loading
-      setLoading(false);
+      if(showLoading){
+        setLoading(false);
+      }
     }
   }
 
   // this runs affect componet is first rendered,
   //  [] means only run when componet mounts
   useEffect(() => {
-    loadGames();
+    loadGames(true);
   }, [])
+
+  // polling effect
+  useEffect(() => {
+    const anyLive = games.some(isLiveGame);
+    const pollRate = anyLive ? 15000 : 60000;
+
+    // clear old interval before starting a new one
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+    }
+
+    // poll silently with no loading flicker
+    intervalRef.current = setInterval(() => {
+      loadGames(false);
+    }, pollRate);
+
+    // cleanup
+    return () => {
+      clearInterval(intervalRef.current);
+    };
+  }, [games])
 
   // UI states 
   // if loading show loading
@@ -76,7 +110,7 @@ function GamesPage() {
       {/* Header section */}
       <div className="games-header">
         <h1>Today's Games</h1>
-        <button onClick={loadGames}>Refresh</button>
+      <button onClick={() => loadGames(false)}>Refresh</button>
       </div>
 
       {/* Grid layout for game cards */}
