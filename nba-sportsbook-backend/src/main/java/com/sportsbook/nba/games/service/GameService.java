@@ -7,6 +7,8 @@ import org.springframework.web.client.RestClient;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,33 +34,47 @@ public class GameService {
     // cached list of games
     private volatile List<GameSummaryDto> cachedGames = List.of();
 
+    // keep track of which date the cache belongs to
+    private volatile LocalDate cachedDate = null;
+
     // Spring injects objectmapper automatically
     public GameService (ObjectMapper objectMapper){
         this.restClient = RestClient.create();
         this.objectMapper = objectMapper;
     }
 
-    public List<GameSummaryDto> getTodaysGames() {
+    // main method the controller calls
+    // get games for whatever date is requested
+    public List<GameSummaryDto> getGamesByDate(LocalDate date) {
         long now = System.currentTimeMillis();
 
-        // if cache is still fresh, return cached data
-        if ((now - lastFetchTime) < CACHE_MS && !cachedGames.isEmpty()) {
+        // if cache is still fresh and belongs to the requested date, return it
+        if ((now - lastFetchTime) < CACHE_MS
+                && !cachedGames.isEmpty()
+                && date.equals(cachedDate)) {
             return cachedGames;
         }
 
+        // only one thread at a time can enter this block
+        // this prevents multiple requests from calling ESPN at the same time
+        // when the cache is expired for the same date
         synchronized (this) {
             now = System.currentTimeMillis();
 
             // check again after entering synchronized block
-            if ((now - lastFetchTime) < CACHE_MS && !cachedGames.isEmpty()) {
+            if ((now - lastFetchTime) < CACHE_MS
+                    && !cachedGames.isEmpty()
+                    && date.equals(cachedDate)) {
                 return cachedGames;
             }
 
-            List<GameSummaryDto> freshGames = fetchFromEspn();
+            // fetch fresh games for the requested date
+            List<GameSummaryDto> freshGames = fetchFromEspn(date);
 
             // only update cache if fetch worked
             if (!freshGames.isEmpty()) {
                 cachedGames = freshGames;
+                cachedDate = date;
                 lastFetchTime = now;
             }
 
@@ -67,11 +83,20 @@ public class GameService {
     }
 
 
-    public List<GameSummaryDto> fetchFromEspn() {
+    public List<GameSummaryDto> fetchFromEspn(LocalDate date) {
 
         try {
-            // Call ESPN API, get a raw JSON response as a string
-            String json = restClient.get().uri(ESPN_URL).retrieve().body(String.class);
+            // ESPN wants dates in YYYYMMDD format
+            String formattedDate = date.format(DateTimeFormatter.BASIC_ISO_DATE);
+
+            // build the final ESPN url with the selected date
+            String url = ESPN_URL + "?dates=" + formattedDate;
+
+            // call ESPN API and get raw JSON as a string
+            String json = restClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .body(String.class);
 
             // convert json string into a jsonNode tree structure
             // makes it easier to deal with json fields

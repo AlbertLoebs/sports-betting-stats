@@ -7,6 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,25 +37,46 @@ public class OddsService {
     // cache duration : 10 min in milliseconds
     private static final long CACHE_DURATION_MS = 10 * 60 * 1000;
 
-    // returns todays odds
-    // if cached data is still fresh, return it instead of calling api again
-
-    public List<OddsGameDto> getTodaysOdds() {
+    // returns requested date odds
+    // first uses the cached full odds list if it is still fresh
+    // then filters that list down to the selected date
+    // returns odds only for the requested date
+    // first uses the cached full odds list if it is still fresh
+    // then filters that list down to the selected date
+    public List<OddsGameDto> getOddsByDate(LocalDate date) {
         long now = System.currentTimeMillis();
 
-        // return cached odds if they are still within the cache duration
-        if (now - lastFetchTime < CACHE_DURATION_MS && !cachedOdds.isEmpty()) {
-            return  cachedOdds;
+        // if cache is expired or empty, fetch fresh odds first
+        if (now - lastFetchTime >= CACHE_DURATION_MS || cachedOdds.isEmpty()) {
+            List<OddsGameDto> freshOdds = fetchOddsFromApi();
+            cachedOdds = freshOdds;
+            lastFetchTime = now;
         }
 
-        // otherwise fetch fresh odds from api
-        List<OddsGameDto> freshOdds = fetchOddsFromApi();
+        // now filter the cached odds list so only games on the requested date are returned
+        List<OddsGameDto> filteredOdds = new ArrayList<>();
 
-        // update cache
-        cachedOdds = freshOdds;
-        lastFetchTime = now;
+        for (OddsGameDto oddsGame : cachedOdds) {
+            try {
+                // commenceTime comes back as an ISO datetime string
+                // example: 2026-03-10T23:30:00Z
+                OffsetDateTime gameTime = OffsetDateTime.parse(oddsGame.commenceTime());
 
-        return freshOdds;
+                // convert UTC odds time into Pacific time before comparing dates
+                LocalDate gameDate = gameTime
+                        .atZoneSameInstant(ZoneId.of("America/Los_Angeles"))
+                        .toLocalDate();
+
+                // only keep odds that match the requested date
+                if (gameDate.equals(date)) {
+                    filteredOdds.add(oddsGame);
+                }
+            } catch (Exception e) {
+                // if a date fails to parse, skip that game safely
+            }
+        }
+
+        return filteredOdds;
     }
 
 
@@ -84,7 +108,7 @@ public class OddsService {
         for (Map<String,Object> game : games){
 
             // extract game info
-            String gameId = (String) game.get("gameid");
+            String gameId = (String) game.get("id");
             String commenceTime = (String) game.get("commence_time");
             String homeTeam = (String) game.get("home_team");
             String awayTeam = (String) game.get("away_team");
