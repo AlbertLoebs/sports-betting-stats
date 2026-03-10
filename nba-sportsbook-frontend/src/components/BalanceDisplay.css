@@ -1,0 +1,59 @@
+.balance-widget {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.balance-text {
+    font-weight: bold;
+}
+
+.deposit-button {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size : 15px;
+}
+
+.deposit-button:hover {
+    opacity: 0.9;
+}
+
+/* modal background */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* modal box */
+.deposit-modal {
+    background: #1e1e1e;
+    padding: 24px;
+    border-radius: 10px;
+    width: 300px;
+}
+
+.deposit-modal input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+}
+
+.modal-buttons {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.error-text {
+    color: red;
+}
