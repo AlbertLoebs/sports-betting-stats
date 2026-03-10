@@ -1,0 +1,91 @@
+.game-card {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 14px;
+    padding: 16px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.18);
+}
+
+.game-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 999px;
+    background-color: #0f172a;
+    color: #93c5fd;
+    border: 1px solid #334155;
+}
+
+.start-time,
+.live-time {
+    font-size: 13px;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.teams-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.team-row {
+    display: grid;
+    grid-template-columns: 1fr 40px 70px;
+    align-items: center;
+    gap: 12px;
+}
+
+.team-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    color: #f8fafc;
+    min-width: 0;
+}
+
+.team-name span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.team-logo {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.team-score {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+    text-align: right;
+}
+
+.team-odds {
+    font-size: 16px;
+    font-weight: 700;
+    color: #86efac;
+    padding: 4px 8px;
+    border-radius: 6px;
+    text-align: center;
+    border: 1px solid transparent;
+}
+
+.team-odds:hover {
+    transform: translateY(-2px);
+    transition: all 0.15s ease;
+    border: 1px solid #000;
+    background-color: #334155;
+    cursor: pointer;
+}
