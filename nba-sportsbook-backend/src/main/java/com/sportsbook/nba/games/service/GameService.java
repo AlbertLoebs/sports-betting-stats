@@ -155,13 +155,14 @@ public class GameService {
 
                     String abbr = team.path("abbreviation").asText();
                     String name = team.path("displayName").asText();
+                    String logo = team.path("logo").asText();
 
                     // ESPN stores score as a string have to convert
                     Integer score = parseNullableInt(comp.path("score").asText());
 
                     // build internal team DTO
                     TeamSummaryDto teamDTO =
-                            new TeamSummaryDto(abbr, name, score);
+                            new TeamSummaryDto(abbr, name, score, logo);
 
                     // assign home away
                     if ("home".equalsIgnoreCase(homeAway)) {
