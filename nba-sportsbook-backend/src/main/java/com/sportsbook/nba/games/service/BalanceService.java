@@ -33,6 +33,10 @@ public class BalanceService {
         return new BalanceResponseDto(balance);
     }
 
+    public void setBalance(BigDecimal newBalance){
+        this.balance = newBalance;
+    }
+
     private void validateAmount(BigDecimal amount) {
         if (amount == null) {
             throw new IllegalArgumentException("Amount is required");
