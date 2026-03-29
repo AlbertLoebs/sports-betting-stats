@@ -18,7 +18,7 @@ public class BalanceController {
 
     @GetMapping
     public BalanceResponseDto getBalance() {
-        return balanceService.getBalance();
+        return new BalanceResponseDto(balanceService.getBalance());
     }
 
     @PostMapping("/deposit")

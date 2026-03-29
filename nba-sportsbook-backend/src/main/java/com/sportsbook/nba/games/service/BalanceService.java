@@ -29,8 +29,8 @@ public class BalanceService {
         return new BalanceResponseDto(balance);
     }
 
-    public BalanceResponseDto getBalance() {
-        return new BalanceResponseDto(balance);
+    public BigDecimal getBalance() {
+        return balance;
     }
 
     public void setBalance(BigDecimal newBalance){
