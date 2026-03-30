@@ -25,6 +25,8 @@ function GamesPage() {
   // stores selected date as a Date object
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [betSlip, setBetSlip] = useState([]);
+
   function isLiveGame(game) {
     const s = (game.status || "").toLowerCase();
     return s.includes("progress") || s.includes("live");
@@ -175,6 +177,41 @@ function GamesPage() {
     }
   }
 
+  function handleAddToBetSlip(selection){
+    // only allow a user to pick one team from the same matchup
+    // if they pick the other team, replace it
+
+    setBetSlip((prev) => {
+      
+      // remove any existing selection from the same game
+      const filtered = prev.filter(
+        (bet) => bet.gameId !== selection.gameId
+      );
+
+      // add new selection
+      return[...filtered, selection];
+
+    });
+  }
+
+  function handleRemoveSelection(indexToRemove){
+    // removes a single selection
+    setBetSlip((prev) =>
+      prev.filter((_, index ) => index !== indexToRemove)
+    );
+  }
+
+  function clearSlip(){
+    // clear all selections
+    setBetSlip([]);
+  }
+
+  async function handlePlaceBet(betData){
+    // calls backend api with the parlay
+    const result = await placeBet(betData);
+    return result;
+  }
+
   // whenever the selected date changes, fetch new games and odds.
   // requestId protection prevents stale responses from older requests.
   useEffect(() => {
@@ -284,7 +321,10 @@ function GamesPage() {
                 key={game.gameId}
                 game={game}
                 odds={matchingOdds}
+                betSlip={handleAddToBetSlip}
               />
+
+            
             );
           })}
         </div>

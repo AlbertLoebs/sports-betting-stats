@@ -1,6 +1,6 @@
 import './GameCard.css';
 
-function GameCard({ game, odds }) {
+function GameCard({ game, odds, betSlip }) {
 
     // convert the time from the backend into readable time
     function formatTime(timeString) {
@@ -100,10 +100,20 @@ function GameCard({ game, odds }) {
                         {scoreOrDash(game.awayTeam.score)}
                     </div>
 
-                    <div className="team-odds">
+                    <button
+                        className="team-odds-button"
+                        onClick={() =>
+                            betSlip({
+                                gameId : game.gameId,
+                                matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                teamName : game.awayTeam.displayName,
+                                odds : odds?.moneyline?.awayPrice
+                            })
+                        }
+                        disabled={!odds || odds.moneyline.awayPrice == null}
+                        >
                         {odds ? formatOdds(odds.moneyline.awayPrice) : "-"}
-                    </div>
-
+                    </button>
                 </div>
 
                 {/* Home team */}
@@ -124,9 +134,20 @@ function GameCard({ game, odds }) {
                         {scoreOrDash(game.homeTeam.score)}
                     </div>
 
-                    <div className="team-odds">
+                    <button
+                        className="team-odds-button"
+                        onClick={() =>
+                            betSlip({
+                                gameId : game.gameId,
+                                matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                teamName : game.homeTeam.displayName,
+                                odds : odds?.moneyline?.homePrice
+                            })
+                        }
+                        disabled={!odds || odds.moneyline.homePrice == null}
+                        >
                         {odds ? formatOdds(odds.moneyline.homePrice) : "-"}
-                    </div>
+                    </button>
                </div>
             </div>
         </div>
