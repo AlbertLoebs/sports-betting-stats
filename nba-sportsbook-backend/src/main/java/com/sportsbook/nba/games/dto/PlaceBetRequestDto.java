@@ -1,9 +1,9 @@
 package com.sportsbook.nba.games.dto;
 
+import java.util.List;
+
 public record PlaceBetRequestDto(
-        String gameId,
-        String teamName,
-        Integer odds,
+        List<ParlayDto> selections,
         Double wager
 ) {
 }

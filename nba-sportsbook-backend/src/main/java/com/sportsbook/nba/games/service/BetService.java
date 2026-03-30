@@ -1,5 +1,6 @@
 package com.sportsbook.nba.games.service;
 
+import com.sportsbook.nba.games.dto.ParlayDto;
 import com.sportsbook.nba.games.service.BalanceService;
 import com.sportsbook.nba.games.dto.PlaceBetRequestDto;
 import com.sportsbook.nba.games.dto.PlaceBetResponseDto;
@@ -7,6 +8,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class BetService {
@@ -21,30 +25,17 @@ public class BetService {
 
     // main method to place a bet
     public PlaceBetResponseDto placeBet(PlaceBetRequestDto request){
-        // validate the game id
-        if (request.gameId() == null || request.gameId().isBlank()){
-            throw new IllegalArgumentException("Game ID is required.");
-        }
-
-        // validate the team
-        if (request.teamName() == null || request.teamName().isBlank()){
-            throw new IllegalArgumentException("Team name is required.");
-        }
-
-        // validate odds
-        if (request.odds() == null){
-            throw new IllegalArgumentException("Odds are required");
-        }
-
-        // validate wager
-        if (request.wager() == null) {
-            throw new IllegalArgumentException("wager is required");
+        // require one selection in order to place a bet
+        if (request.selections() == null || request.selections().isEmpty()){
+            throw new IllegalArgumentException("At least one selection is required");
         }
 
         // wager must be more than zero
-        if (request.wager() <= 0){
+        if (request.wager() == null || request.wager() <= 0){
             throw new IllegalArgumentException("Wager must be greater than zero");
         }
+
+        validateSelections(request.selections());
 
         // convert wager from Double to BigDecimal for safer money math
         BigDecimal wager = BigDecimal.valueOf(request.wager());
@@ -62,16 +53,17 @@ public class BetService {
         // set the updated balance
         balanceService.setBalance(newBalance);
 
-        // calculate how much the user would get back if the bet wins
-        BigDecimal potentialPayout = calculatePayout(wager, request.odds());
+        double combinedDecimalOdds = calculateCombinedDecimalOdds(request.selections());
+        BigDecimal potentialPayout = wager.multiply(BigDecimal.valueOf(combinedDecimalOdds))
+                .setScale(2, RoundingMode.HALF_UP);
 
-        // build and return the response dto
+        int combinedAmericanOdds = decimalToAmerican(combinedDecimalOdds);
+
         return new PlaceBetResponseDto(
                 "Bet placed successfully.",
-                request.gameId(),
-                request.teamName(),
-                request.odds(),
+                request.selections(),
                 wager.doubleValue(),
+                combinedAmericanOdds,
                 potentialPayout.doubleValue(),
                 newBalance.doubleValue()
         );
@@ -102,4 +94,55 @@ public class BetService {
         // round to 2 decimal places for money
         return payout.setScale(2, RoundingMode.HALF_UP);
     }
+
+    private void validateSelections(List<ParlayDto> selections){
+        // set to avoid dups
+        Set<String> gameIds = new HashSet<>();
+
+        for (ParlayDto selection : selections){
+            if (selection.gameId() == null || selection.gameId().isBlank()) {
+                throw new IllegalArgumentException("Each selection must include a game ID.");
+            }
+
+            if (selection.teamName() == null || selection.teamName().isBlank()) {
+                throw new IllegalArgumentException("Each selection must include a team name.");
+            }
+
+            if (selection.odds() == null) {
+                throw new IllegalArgumentException("Each selection must include odds.");
+            }
+
+            if (!gameIds.add(selection.gameId())) {
+                throw new IllegalArgumentException("Only one selection per game is allowed in a parlay.");
+            }
+        }
+
+    }
+
+    private double calculateCombinedDecimalOdds(List<ParlayDto> selections) {
+        double combined = 1.0;
+
+        for (ParlayDto selection : selections) {
+            combined *= americanToDecimal(selection.odds());
+        }
+
+        return combined;
+    }
+
+    private double americanToDecimal(int americanOdds) {
+        if (americanOdds > 0) {
+            return 1.0 + (americanOdds / 100.0);
+        } else {
+            return 1.0 + (100.0 / Math.abs(americanOdds));
+        }
+    }
+
+    private int decimalToAmerican(double decimalOdds) {
+        if (decimalOdds >= 2.0) {
+            return (int) Math.round((decimalOdds - 1.0) * 100);
+        } else {
+            return (int) Math.round(-100 / (decimalOdds - 1.0));
+        }
+    }
+
 }

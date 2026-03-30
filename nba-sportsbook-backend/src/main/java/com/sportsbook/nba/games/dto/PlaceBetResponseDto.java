@@ -1,12 +1,12 @@
 package com.sportsbook.nba.games.dto;
 
+import java.util.List;
+
 public record PlaceBetResponseDto(
         String message,
-        String gameId,
-        String teamName,
-        Integer odds,
+        List<ParlayDto> selections,
         Double wager,
+        Integer combinedAmericanOdds,
         Double potentialPayout,
         Double newBalance
-) {
-}
+) {}
