@@ -1,10 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchGamesByDate } from "../services/GamesApi";
 import { fetchOddsByDate } from "../services/GamesApi";
+import { placeBet } from "../services/BetApi";
 import GameCard from "../components/GameCard";
+import BetSlip from "../components/BetSlip";
 import './GamesPage.css'
 
-function GamesPage() {
+function GamesPage( {setBalance}) {
   // vars rendered
   const [games, setGames] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,7 +203,7 @@ function GamesPage() {
     );
   }
 
-  function clearSlip(){
+  function handleClearSlip(){
     // clear all selections
     setBetSlip([]);
   }
@@ -209,6 +211,7 @@ function GamesPage() {
   async function handlePlaceBet(betData){
     // calls backend api with the parlay
     const result = await placeBet(betData);
+    setBalance(result.newBalance);
     return result;
   }
 
@@ -317,20 +320,26 @@ function GamesPage() {
             );
 
             return (
-              <GameCard
-                key={game.gameId}
-                game={game}
-                odds={matchingOdds}
-                betSlip={handleAddToBetSlip}
-              />
+            <GameCard
+              key={game.gameId}
+              game={game}
+              odds={matchingOdds}
+              onAddToBetSlip={handleAddToBetSlip}
+            />
+          );
+        })}
+      </div>
+    )}
 
-            
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
+    {/* one shared bet slip for the whole page */}
+    <BetSlip
+      selections={betSlip}
+      onRemoveSelection={handleRemoveSelection}
+      onClearSlip={handleClearSlip}
+      onPlaceBet={handlePlaceBet}
+    />
+  </div>
+);
 }
 
 export default GamesPage

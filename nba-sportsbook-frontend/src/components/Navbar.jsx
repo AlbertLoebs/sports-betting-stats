@@ -1,7 +1,7 @@
 import BalanceDisplay from "./BalanceDisplay";
 import "./Navbar.css";
 
-function Navbar(){
+function Navbar({balance, setBalance}){
     return (
         <div className="navbar">
             {/* left side: site title */}
@@ -11,7 +11,7 @@ function Navbar(){
 
             {/* Right side: balance widget */}
             <div className="nav-right">
-                <BalanceDisplay />
+                <BalanceDisplay balance={balance}  setBalance={setBalance} />
             </div>
         </div>
     )

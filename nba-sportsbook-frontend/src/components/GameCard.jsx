@@ -1,6 +1,6 @@
 import './GameCard.css';
 
-function GameCard({ game, odds, betSlip }) {
+function GameCard({ game, odds, onAddToBetSlip }) {
 
     // convert the time from the backend into readable time
     function formatTime(timeString) {
@@ -101,9 +101,9 @@ function GameCard({ game, odds, betSlip }) {
                     </div>
 
                     <button
-                        className="team-odds-button"
+                        className="team-odds"
                         onClick={() =>
-                            betSlip({
+                            onAddToBetSlip({
                                 gameId : game.gameId,
                                 matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
                                 teamName : game.awayTeam.displayName,
@@ -135,9 +135,9 @@ function GameCard({ game, odds, betSlip }) {
                     </div>
 
                     <button
-                        className="team-odds-button"
+                        className="team-odds"
                         onClick={() =>
-                            betSlip({
+                            onAddToBetSlip({
                                 gameId : game.gameId,
                                 matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
                                 teamName : game.homeTeam.displayName,

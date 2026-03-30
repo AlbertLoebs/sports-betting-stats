@@ -1,0 +1,130 @@
+/* main container fixed in bottom-right corner */
+.bet-slip {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+
+    width: 320px;
+    max-height: 80vh;
+    overflow-y: auto;
+
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+
+    padding: 16px;
+
+    /* subtle shadow so it floats above page */
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+
+    z-index: 1000;
+}
+
+/* title */
+.bet-slip h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+/* empty state */
+.bet-slip-empty {
+    color: #666;
+}
+
+/* list of picks */
+.bet-slip-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+/* each pick */
+.bet-slip-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 10px;
+
+    border: 1px solid #eee;
+    border-radius: 8px;
+
+    padding: 10px;
+}
+
+/* text section */
+.bet-slip-item-text {
+    flex: 1;
+}
+
+/* matchup (small text) */
+.bet-slip-matchup {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+/* selected team + odds */
+.bet-slip-pick {
+    font-weight: 600;
+}
+
+/* remove button */
+.bet-slip-remove {
+    background: #f3f3f3;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    padding: 6px 8px;
+    cursor: pointer;
+}
+
+/* summary section (bottom) */
+.bet-slip-summary {
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+}
+
+/* wager input */
+.bet-slip-input {
+    width: 100%;
+    padding: 8px;
+
+    margin: 10px 0;
+
+    border: 1px solid #ccc;
+    border-radius: 6px;
+
+    box-sizing: border-box;
+}
+
+/* buttons container */
+.bet-slip-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+/* buttons */
+.bet-slip-actions button {
+    flex: 1;
+    padding: 10px;
+
+    border: none;
+    border-radius: 6px;
+
+    cursor: pointer;
+}
+
+/* success message */
+.bet-slip-message {
+    color: green;
+    margin-top: 12px;
+}
+
+/* error message */
+.bet-slip-error {
+    color: red;
+    margin-top: 12px;
+}

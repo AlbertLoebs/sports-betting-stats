@@ -1,10 +1,8 @@
-import { useEffect, useState } from "react";
-import { fetchBalance, depositBalance } from "../services/BalanceApi";
+import { useState } from "react";
+import { depositBalance } from "../services/BalanceApi";
 import "./BalanceDisplay.css";
 
-function BalanceDisplay() {
-    // stores curr balance val
-    const [balance, setBalance] = useState(null);
+function BalanceDisplay({balance, setBalance}) {
 
     // controls modal vis
     const [showModal, setShowModal] = useState(false);
@@ -17,23 +15,6 @@ function BalanceDisplay() {
 
     // loading state when deposit request is running
     const [loading, setLoading] = useState(false);
-
-    // Load balance when component first renders
-    useEffect(() => {
-        loadBalance();
-    }, []);
-
-    // Fetch balance from backend
-    async function loadBalance() {
-        try {
-            const data = await fetchBalance();
-            console.log("balance response:", data);
-            setBalance(data.balance);
-        } catch (err) {
-            console.error(err);
-            setError("Failed to load balance");
-        }
-    }
 
     // Handles deposit form submission
     async function handleDeposit(e) {
@@ -71,39 +52,26 @@ function BalanceDisplay() {
         <>
             {/* Top right balance display */}
             <div className="balance-widget">
-
                 <span className="balance-text">
-                    Balance: {balance !== null ? `$${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "..."}                </span>
-
+                    Balance: {balance !== null ? `$${Number(balance).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "..."}
+                </span>
                 {/* Opens deposit modal */}
-                <button
-                    className="deposit-button"
-                    onClick={() => setShowModal(true)}
-                >
-                    +
-                </button>
-
+                <button className="deposit-button" onClick={() => setShowModal(true)}> + </button>
             </div>
-
 
             {/* Deposit Modal */}
             {showModal && (
-
                 <div
                     className="modal-overlay"
                     onClick={() => setShowModal(false)}
                 >
-
                     {/* Prevent closing when clicking inside modal */}
                     <div
                         className="deposit-modal"
                         onClick={(e) => e.stopPropagation()}
                     >
-
                         <h3>Add Funds</h3>
-
                         <form onSubmit={handleDeposit}>
-
                             {/* Deposit amount input */}
                             <input
                                 type="number"
@@ -115,33 +83,24 @@ function BalanceDisplay() {
                             {error && (
                                 <p className="error-text">{error}</p>
                             )}
-
                             <div className="modal-buttons">
-
                                 <button
                                     type="button"
                                     onClick={() => setShowModal(false)}
                                 >
                                     Cancel
                                 </button>
-
                                 <button
                                     type="submit"
                                     disabled={loading}
                                 >
                                     {loading ? "Adding..." : "Deposit"}
                                 </button>
-
                             </div>
-
                         </form>
-
                     </div>
-
                 </div>
-
             )}
-
         </>
     );
 }
