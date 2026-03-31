@@ -1,5 +1,6 @@
 package com.sportsbook.nba.games.service;
 
+import com.sportsbook.nba.games.dto.BalanceResponseDto;
 import com.sportsbook.nba.games.dto.ParlayDto;
 import com.sportsbook.nba.games.service.BalanceService;
 import com.sportsbook.nba.games.dto.PlaceBetRequestDto;
@@ -47,11 +48,11 @@ public class BetService {
             throw new IllegalArgumentException("Insufficient balance.");
         }
 
-        // substract the wager
-        BigDecimal newBalance = currentBalance.subtract(wager);
+        // subtract wager using DB-backed logic
+        BalanceResponseDto updated = balanceService.withdraw(wager);
 
-        // set the updated balance
-        balanceService.setBalance(newBalance);
+        // get new balance from response
+        BigDecimal newBalance = updated.balance();
 
         double combinedDecimalOdds = calculateCombinedDecimalOdds(request.selections());
         BigDecimal potentialPayout = wager.multiply(BigDecimal.valueOf(combinedDecimalOdds))

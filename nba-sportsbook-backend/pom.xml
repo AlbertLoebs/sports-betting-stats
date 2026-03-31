@@ -46,6 +46,19 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- Spring JDBC: gives us JdbcTemplate to run SQL -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<!-- SQLite driver: lets Java connect to the .db file -->
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<version>3.45.1.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
