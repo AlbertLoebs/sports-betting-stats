@@ -8,10 +8,20 @@ CREATE TABLE IF NOT EXISTS users (
 -- bets table
 CREATE TABLE IF NOT EXISTS bets (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    game_id TEXT NOT NULL,
-    team_selected TEXT NOT NULL,
-    odds INTEGER NOT NULL,
     wager_cents INTEGER NOT NULL,
-    status TEXT NOT NULL    -- pending, win , lost
+    combined_odds INTEGER NOT NULL,
+    potential_payout_cents INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- each selection in a parlay
+CREATE TABLE IF NOT EXISTS bet_legs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    bet_id INTEGER NOT NULL,
+    game_id TEXT NOT NULL,
+    team TEXT NOT NULL,
+    odds INTEGER NOT NULL,
+    status TEXT NOT NULL,
+    FOREIGN KEY (bet_id) REFERENCES bets(id)
 );
