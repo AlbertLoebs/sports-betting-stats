@@ -1,17 +1,17 @@
 import BalanceDisplay from "./BalanceDisplay";
 import "./Navbar.css";
+import { Link } from "react-router-dom"
 
 function Navbar({balance, setBalance}){
     return (
-        <div className="navbar">
-            {/* left side: site title */}
+         <div className="navbar">
             <div className="nav-left">
-                NBA Sportsbook
+                <Link to="/" className="nav-link">NBA Sportsbook</Link>
+                <Link to="/history" className="nav-link">Bet History</Link>
             </div>
 
-            {/* Right side: balance widget */}
             <div className="nav-right">
-                <BalanceDisplay balance={balance}  setBalance={setBalance} />
+                <BalanceDisplay balance={balance} setBalance={setBalance} />
             </div>
         </div>
     )

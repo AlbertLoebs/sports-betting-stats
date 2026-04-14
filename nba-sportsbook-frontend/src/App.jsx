@@ -3,6 +3,8 @@ import GamesPage from "./pages/GamesPage";
 import Navbar from "./components/Navbar";
 import { useState, useEffect } from "react";
 import { fetchBalance } from './services/BalanceApi';
+import BetHistoryPage from './pages/BetHistoryPage';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
    // shared balance state for whole app
@@ -25,10 +27,16 @@ function App() {
   }, []);
 
   return (
-    <>
-      <Navbar balance={balance} setBalance={setBalance} />
-      <GamesPage setBalance={setBalance} />
-    </>
+    <BrowserRouter>
+      <Navbar balance={balance} setBalance={setBalance}/>
+
+      <Routes>
+        <Route path="/" element={<GamesPage setBalance={setBalance} />} />
+        <Route path="/history" element={<BetHistoryPage />} />
+      </Routes>
+
+    </BrowserRouter>
+    
   );
 }
 
