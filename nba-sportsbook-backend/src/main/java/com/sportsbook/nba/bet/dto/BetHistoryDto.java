@@ -1,4 +1,14 @@
 package com.sportsbook.nba.bet.dto;
 
-public record BetHistoryDto() {
+import java.util.List;
+
+public record BetHistoryDto(
+        Long id,
+        Integer wagerCents,
+        Integer combinedOdds,
+        Integer potentialPayoutCents,
+        String status,
+        String createdAt,
+        List<BetLegHistoryDto> legs
+) {
 }

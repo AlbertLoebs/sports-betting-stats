@@ -1,6 +1,7 @@
 package com.sportsbook.nba.games.service;
 
 import com.sportsbook.nba.bet.BetDao;
+import com.sportsbook.nba.bet.dto.BetHistoryDto;
 import com.sportsbook.nba.games.dto.BalanceResponseDto;
 import com.sportsbook.nba.games.dto.ParlayDto;
 import com.sportsbook.nba.games.service.BalanceService;
@@ -190,6 +191,10 @@ public class BetService {
         } else {
             return (int) Math.round(-100 / (decimalOdds - 1.0));
         }
+    }
+
+    public List<BetHistoryDto> getBetHistory() {
+        return betDao.getBetHistory();
     }
 
 }

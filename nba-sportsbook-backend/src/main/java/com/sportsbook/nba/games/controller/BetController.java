@@ -1,10 +1,13 @@
 package com.sportsbook.nba.games.controller;
 
+import com.sportsbook.nba.bet.dto.BetHistoryDto;
 import com.sportsbook.nba.games.dto.PlaceBetRequestDto;
 import com.sportsbook.nba.games.dto.PlaceBetResponseDto;
 import com.sportsbook.nba.games.service.BetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/bets")
@@ -32,6 +35,11 @@ public class BetController {
             // if validation fails return http 400
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @GetMapping("/history")
+    public List<BetHistoryDto> getHistory(){
+        return betService.getBetHistory();
     }
 
 }
