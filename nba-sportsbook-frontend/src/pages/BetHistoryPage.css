@@ -1,0 +1,75 @@
+.bet-history-page {
+    padding: 24px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.bet-history-page h1 {
+    margin-bottom: 20px;
+}
+
+.bet-history-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.bet-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.bet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.bet-header h3 {
+    margin: 0;
+}
+
+.bet-legs {
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #333;
+}
+
+.bet-legs h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+}
+
+.bet-leg-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+}
+
+.bet-status,
+.leg-status {
+    font-weight: bold;
+}
+
+.bet-status.pending,
+.leg-status.pending {
+    color: gold;
+}
+
+.bet-status.won,
+.leg-status.won {
+    color: limegreen;
+}
+
+.bet-status.lost,
+.leg-status.lost {
+    color: red;
+}
+
+.bet-history-error {
+    color: red;
+}

@@ -1,41 +1,43 @@
-/* main container fixed in bottom-right corner */
 .bet-slip {
     position: fixed;
     right: 20px;
     bottom: 20px;
 
-    width: 320px;
+    width: 340px;
     max-height: 80vh;
     overflow-y: auto;
 
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 12px;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 14px;
 
-    padding: 16px;
+    padding: 18px;
 
-    /* subtle shadow so it floats above page */
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     z-index: 1000;
 }
 
 /* title */
 .bet-slip h3 {
     margin-top: 0;
-    margin-bottom: 12px;
+    margin-bottom: 14px;
+    font-size: 1.2rem;
+    border-bottom: 1px solid #333;
+    padding-bottom: 10px;
 }
 
 /* empty state */
 .bet-slip-empty {
-    color: #666;
+    color: #aaa;
+    font-size: 0.95rem;
 }
 
 /* list of picks */
 .bet-slip-list {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
     margin-bottom: 16px;
 }
 
@@ -44,13 +46,12 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
+    gap: 12px;
 
-    gap: 10px;
-
-    border: 1px solid #eee;
-    border-radius: 8px;
-
-    padding: 10px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px;
 }
 
 /* text section */
@@ -60,71 +61,112 @@
 
 /* matchup (small text) */
 .bet-slip-matchup {
-    font-size: 0.9rem;
-    color: #555;
-    margin-bottom: 4px;
+    font-size: 0.85rem;
+    color: #aaa;
+    margin-bottom: 6px;
 }
 
 /* selected team + odds */
 .bet-slip-pick {
     font-weight: 600;
+    color: #7CFC7C;
 }
 
 /* remove button */
 .bet-slip-remove {
-    background: #f3f3f3;
-    border: 1px solid #ccc;
+    background: #2a2a2a;
+    color: white;
+    border: 1px solid #444;
     border-radius: 6px;
-
-    padding: 6px 8px;
+    padding: 6px 10px;
     cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.bet-slip-remove:hover {
+    background: #3a3a3a;
+    border-color: #666;
 }
 
 /* summary section (bottom) */
 .bet-slip-summary {
-    border-top: 1px solid #eee;
-    padding-top: 12px;
+    border-top: 1px solid #333;
+    padding-top: 14px;
 }
 
 /* wager input */
 .bet-slip-input {
     width: 100%;
-    padding: 8px;
-
+    padding: 10px;
     margin: 10px 0;
 
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    background: #111;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 8px;
 
     box-sizing: border-box;
+}
+
+.bet-slip-input::placeholder {
+    color: #888;
+}
+
+.bet-slip-input:focus {
+    outline: none;
+    border-color: #7CFC7C;
 }
 
 /* buttons container */
 .bet-slip-actions {
     display: flex;
-    gap: 8px;
-    margin-top: 10px;
+    gap: 10px;
+    margin-top: 12px;
 }
 
 /* buttons */
 .bet-slip-actions button {
     flex: 1;
-    padding: 10px;
+    padding: 10px 12px;
 
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
 
+    font-weight: 600;
     cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.bet-slip-actions button:hover {
+    opacity: 0.9;
+}
+
+.bet-slip-actions button:active {
+    transform: scale(0.98);
+}
+
+/* optional: first button */
+.bet-slip-actions button:first-child {
+    background: #2e7d32;
+    color: white;
+}
+
+/* optional: second button */
+.bet-slip-actions button:last-child {
+    background: #444;
+    color: white;
 }
 
 /* success message */
 .bet-slip-message {
-    color: green;
+    color: #7CFC7C;
     margin-top: 12px;
+    font-size: 0.95rem;
 }
 
 /* error message */
 .bet-slip-error {
-    color: red;
+    color: #ff6b6b;
     margin-top: 12px;
+    font-size: 0.95rem;
 }

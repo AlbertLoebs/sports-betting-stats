@@ -2,17 +2,38 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 24px;
+    padding: 14px 32px;
     color: white;
     border-bottom: 1px solid #333;
+    background-color: #121212;
+    background-color: #0f0f0f;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    width: 100%;
 }
 
 .nav-left {
-    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    font-size: 20px;
     font-weight: bold;
 }
 
 .nav-right {
     display: flex;
     align-items: center;
+    gap: 16px;
 }
+
+.nav-link {
+    font-size: 16px;
+    font-weight: normal;
+    color: #ccc;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav-link:hover {
+    color: white;
+}
+
