@@ -2,17 +2,16 @@ package com.sportsbook.nba.games.service;
 
 import com.sportsbook.nba.bet.BetDao;
 import com.sportsbook.nba.bet.dto.BetHistoryDto;
-import com.sportsbook.nba.games.dto.BalanceResponseDto;
-import com.sportsbook.nba.games.dto.ParlayDto;
+import com.sportsbook.nba.bet.dto.BetLegHistoryDto;
+import com.sportsbook.nba.games.dto.*;
 import com.sportsbook.nba.games.service.BalanceService;
-import com.sportsbook.nba.games.dto.PlaceBetRequestDto;
-import com.sportsbook.nba.games.dto.PlaceBetResponseDto;
 import com.sportsbook.nba.model.Bet;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,10 +26,13 @@ public class BetService {
     // lets service save bets to the db
     private final BetDao betDao;
 
+    // lets this service look up actual NBA game results from ESPN data
+    private final GameService gameService;
 
-    public BetService(BalanceService balanceService, BetDao betDao){
+    public BetService(BalanceService balanceService, BetDao betDao, GameService gameService) {
         this.balanceService = balanceService;
         this.betDao = betDao;
+        this.gameService = gameService;
     }
 
     // main method to place a bet
@@ -81,7 +83,7 @@ public class BetService {
         bet.setWagerCents(wagerCents);             // total wager
         bet.setCombinedOdds(combinedOdds);         // parlay odds
         bet.setPotentialPayoutCents(payoutCents);  // possible payout
-        bet.setStatus("OPEN");                     // bet status
+        bet.setStatus("PENDING");                     // bet status
 
         // insert into "bets" table
         // returns generated bet_id
@@ -193,8 +195,119 @@ public class BetService {
         }
     }
 
+
+    // when bet requested grade all pending bets
+    // then return new history
+    @Transactional
     public List<BetHistoryDto> getBetHistory() {
+        gradePendingBets();
         return betDao.getBetHistory();
     }
+
+    // check all pending bets, grade each leg, update entire bet
+    // payout if won
+    @Transactional
+    public void gradePendingBets() {
+        List<BetHistoryDto> pendingBets = betDao.getPendingBets();
+
+        for (BetHistoryDto bet : pendingBets) {
+            boolean anyLost = false;
+            boolean allWon = true;
+
+            for (BetLegHistoryDto leg : bet.legs()) {
+                String legResult = gradeLeg(leg);
+
+                // update if leg status changed
+                if (!legResult.equals(leg.status())) {
+                    betDao.updateBetLegStatus(leg.id(), legResult);
+                }
+
+                if ("LOST".equals(legResult)) {
+                    anyLost = true;
+                }
+
+                if (!"WON".equals(legResult)) {
+                    allWon = false;
+                }
+            }
+
+            // this part is AFTER the leg loop
+            if (anyLost) {
+                betDao.updateBetStatus(bet.id(), "LOST");
+            } else if (allWon) {
+                betDao.updateBetStatus(bet.id(), "WON");
+
+                BigDecimal payoutDollars = BigDecimal.valueOf(bet.potentialPayoutCents())
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+                balanceService.deposit(payoutDollars);
+            }
+        }
+    }
+
+    // grades one indivdual leg based on game result
+    private String gradeLeg(BetLegHistoryDto leg) {
+        GameSummaryDto game = findGameById(leg.gameId());
+
+        // if cant find game keep pending
+        if (game == null){
+            return "PENDING";
+        }
+
+        // not over
+        if (!isFinal(game)){
+            return "PENDING";
+        }
+
+        String winningTeam = getWinningTeam(game);
+
+        // if seleected team won, leg won
+        if ((winningTeam != null && winningTeam.equalsIgnoreCase(leg.team()))){
+            return "WON";
+        }
+
+        // otherwise lost
+        return "LOST";
+    }
+
+    // find the game by id, check by 7 day window
+    private GameSummaryDto findGameById(String gameId) {
+        LocalDate today =  LocalDate.now();
+
+        for (int i = -30; i <= 7; i++) {
+            LocalDate date = today.plusDays(i);
+            List<GameSummaryDto> games = gameService.getGamesByDate(date);
+
+            for (GameSummaryDto game : games) {
+                if (game.gameId().equals(gameId)) {
+                    return game;
+                }
+            }
+        }
+        return null;
+    }
+
+    // check if game is over
+    private boolean isFinal(GameSummaryDto game) {
+        return game.status() != null && game.status().equalsIgnoreCase("FINAL");
+    }
+
+    // return winning team display name
+    private String getWinningTeam(GameSummaryDto game) {
+        Integer homeScore = game.homeTeam().score();
+        Integer awayScore = game.awayTeam().score();
+
+        if (homeScore == null || awayScore == null) {
+            return null;
+        }
+
+        if (homeScore > awayScore) {
+            return game.homeTeam().displayName();
+        } else if (awayScore > homeScore) {
+            return game.awayTeam().displayName();
+        }
+        return null;
+    }
+
 
 }

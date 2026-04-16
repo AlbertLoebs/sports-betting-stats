@@ -34,7 +34,7 @@ public class BetDao {
     public void insertBetLeg(Long betId, String gameId, String team, int odds) {
         String sql = "INSERT INTO bet_legs (bet_id, game_id, team, odds, status) VALUES (?, ?, ?, ?, ?)";
 
-        jdbc.update(sql, betId, gameId, team, odds, "OPEN");
+        jdbc.update(sql, betId, gameId, team, odds, "PENDING");
     }
 
     public List<BetHistoryDto> getBetHistory(){
@@ -76,4 +76,39 @@ public class BetDao {
                 rs.getString("status")
         ), betId);
     }
+
+    public List<BetHistoryDto> getPendingBets() {
+        String sql = """
+            SELECT id, wager_cents, combined_odds, potential_payout_cents, status, created_at
+            FROM bets
+            WHERE status = 'PENDING'
+            ORDER BY created_at ASC, id ASC
+            """;
+
+        return jdbc.query(sql, (rs, rowNum) -> {
+            Long betId = rs.getLong("id");
+
+            return new BetHistoryDto(
+                    betId,
+                    rs.getInt("wager_cents"),
+                    rs.getInt("combined_odds"),
+                    rs.getInt("potential_payout_cents"),
+                    rs.getString("status"),
+                    rs.getString("created_at"),
+                    getLegsForBet(betId)
+            );
+        });
+    }
+
+    public void updateBetLegStatus(Long legId, String status) {
+        String sql = "UPDATE bet_legs SET status = ? WHERE id = ?";
+        jdbc.update(sql, status, legId);
+    }
+
+    public void updateBetStatus(Long betId, String status) {
+        String sql = "UPDATE bets SET status = ? WHERE id = ?";
+        jdbc.update(sql, status, betId);
+    }
+
+
 }
