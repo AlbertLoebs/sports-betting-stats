@@ -2,6 +2,8 @@ package com.sportsbook.nba.games.service;
 
 import com.sportsbook.nba.games.dto.MoneyLineDto;
 import com.sportsbook.nba.games.dto.OddsGameDto;
+import com.sportsbook.nba.games.dto.SpreadDto;
+import com.sportsbook.nba.games.dto.TotalDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -87,7 +89,7 @@ public class OddsService {
         String url = baseUrl
                 + "/sports/basketball_nba/odds"
                 + "?regions=us"
-                + "&markets=h2h"
+                + "&markets=h2h,spreads,totals"
                 + "&oddsFormat=american"
                 + "&apiKey=" + apiKey;
 
@@ -117,6 +119,17 @@ public class OddsService {
             Integer homePrice = null;
             Integer awayPrice = null;
 
+            // spread variables
+            Double homePoint = null;
+            Double awayPoint = null;
+            Integer homeSpreadPrice = null;
+            Integer awaySpreadPrice = null;
+
+            // total variables
+            Double totalLine = null;
+            Integer overPrice = null;
+            Integer underPrice = null;
+
             // get list of all bookmakers
             List<Map<String, Object>> bookMakers =
                     (List<Map<String, Object>>) game.get("bookmakers");
@@ -128,7 +141,7 @@ public class OddsService {
                     String bookMakerKey = (String) bookMaker.get("key");
 
                     // skip anything non fanduel
-                    if (!"fanduel".equals(bookMakerKey)){
+                    if (!"fanduel".equals(bookMakerKey)) {
                         continue;
                     }
 
@@ -136,7 +149,7 @@ public class OddsService {
                     List<Map<String, Object>> markets =
                             (List<Map<String, Object>>) bookMaker.get("markets");
 
-                    if (markets == null){
+                    if (markets == null) {
                         continue;
                     }
 
@@ -144,40 +157,92 @@ public class OddsService {
                     for (Map<String, Object> market : markets) {
                         String marketKey = (String) market.get("key");
 
-                        // only use h2h odds right now
-                        if (!"h2h".equals(marketKey)){
-                            continue;
-                        }
-
                         // outcomes contain the prices for each team
                         List<Map<String, Object>> outcomes =
                                 (List<Map<String, Object>>) market.get("outcomes");
 
-                        if (outcomes == null){
+                        if (outcomes == null) {
                             continue;
                         }
 
-                        // loop thru the two outcomes and match them to home/away
-                        for (Map<String, Object> outcome : outcomes) {
-                            String name = (String) outcome.get("name");
+                        if ("h2h".equals(marketKey)) {
+                            // loop thru the two outcomes and match them to home/away
+                            for (Map<String, Object> outcome : outcomes) {
+                                String name = (String) outcome.get("name");
 
-                            // convert price to integer
-                            Number priceNumber = (Number) outcome.get("price");
-                            Integer price = priceNumber != null ? priceNumber.intValue() : null;
+                                // convert price to integer
+                                Number priceNumber = (Number) outcome.get("price");
+                                Integer price = priceNumber != null ? priceNumber.intValue() : null;
 
-                            // match the correct price to the correct team
-                            if (homeTeam.equals(name)){
-                                homePrice = price;
-                            } else if (awayTeam.equals(name)){
-                                awayPrice = price;
+                                // match the correct price to the correct team
+                                if (homeTeam.equals(name)) {
+                                    homePrice = price;
+                                } else if (awayTeam.equals(name)) {
+                                    awayPrice = price;
+                                }
+                            }
+                        }
+
+                        if ("spreads".equals(marketKey)) {
+                            for (Map<String, Object> outcome : outcomes) {
+                                String name = (String) outcome.get("name");
+
+                                Number pointNumber = (Number) outcome.get("point");
+                                Double point = pointNumber != null ? pointNumber.doubleValue() : null;
+
+                                Number priceNumber = (Number) outcome.get("price");
+                                Integer price = priceNumber != null ? priceNumber.intValue() : null;
+
+                                if (homeTeam.equals(name)) {
+                                    homePoint = point;
+                                    homeSpreadPrice = price;
+                                } else if (awayTeam.equals(name)) {
+                                    awayPoint = point;
+                                    awaySpreadPrice = price;
+                                }
+                            }
+                        }
+
+                        if ("totals".equals(marketKey)) {
+                            for (Map<String, Object> outcome : outcomes) {
+                                String name = (String) outcome.get("name");
+
+                                Number pointNumber = (Number) outcome.get("point");
+                                Double point = pointNumber != null ? pointNumber.doubleValue() : null;
+
+                                Number priceNumber = (Number) outcome.get("price");
+                                Integer price = priceNumber != null ? priceNumber.intValue() : null;
+
+                                if ("Over".equalsIgnoreCase(name)) {
+                                    totalLine = point;
+                                    overPrice = price;
+                                } else if ("Under".equalsIgnoreCase(name)) {
+                                    totalLine = point;
+                                    underPrice = price;
+                                }
                             }
                         }
                     }
+                    break;
                 }
             }
 
             // build nested moneyline dto
             MoneyLineDto moneyline = new MoneyLineDto(homePrice, awayPrice);
+
+                SpreadDto spread = new SpreadDto(
+                        homePoint,
+                        homeSpreadPrice,
+                        awayPoint,
+                        awaySpreadPrice
+                );
+
+                TotalDto total = new TotalDto(
+                        totalLine,
+                        overPrice,
+                        underPrice
+                );
+
 
             // build final game dto
             OddsGameDto oddsGame = new OddsGameDto(
@@ -185,7 +250,9 @@ public class OddsService {
                     commenceTime,
                     homeTeam,
                     awayTeam,
-                    moneyline
+                    moneyline,
+                    spread,
+                    total
             );
 
             // add this to the return list

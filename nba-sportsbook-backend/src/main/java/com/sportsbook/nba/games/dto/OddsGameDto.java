@@ -5,6 +5,8 @@ public record OddsGameDto(
         String commenceTime,
         String homeTeam,
         String awayTeam,
-        MoneyLineDto moneyline
+        MoneyLineDto moneyline,
+        SpreadDto spread,
+        TotalDto total
 ) {
 }
