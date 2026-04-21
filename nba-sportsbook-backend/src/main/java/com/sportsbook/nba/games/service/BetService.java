@@ -310,7 +310,7 @@ public class BetService {
     private GameSummaryDto findGameById(String gameId) {
         LocalDate today =  LocalDate.now();
 
-        for (int i = -30; i <= 7; i++) {
+        for (int i = -7; i <= 7; i++) {
             LocalDate date = today.plusDays(i);
             List<GameSummaryDto> games = gameService.getGamesByDate(date);
 
