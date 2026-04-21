@@ -30,6 +30,11 @@ function GameCard({ game, odds, onAddToBetSlip }) {
         else return `${q - 4}OT`;
     }
 
+    function formatLine(line) {
+        if (line == null) return "-";
+        return line > 0 ? `+${line}` : `${line}`;
+    }
+
     // build live display string
     function live() {
         const status = (game.status || "").toLowerCase();
@@ -59,14 +64,13 @@ function GameCard({ game, odds, onAddToBetSlip }) {
     return (
         <div className="game-card">
 
-            {/* Top section status and start time */}
+            {/* top section status and start time */}
             <div className="game-top">
 
                 <span className="status-badge">
                     {game.status}
                 </span>
 
-                {/* if game is live show quarter + clock */}
                 {liveInfo ? (
                     <span className="live-time">
                         {liveInfo}
@@ -79,10 +83,20 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
             </div>
 
-            {/* Teams section */}
+            {/* teams + odds all on same row */}
             <div className="teams-list">
+                <div className="odds-header">
+                    <span className="header-left"></span>
 
-                {/* Away team */}
+                    <div className="header-right">
+                        <span></span> {/* score column */}
+                        <span>Moneyline</span>
+                        <span>Spread</span>
+                        <span>Total</span>
+                    </div>
+                </div>
+
+                {/* away team */}
                 <div className="team-row">
 
                     <div className="team-name">
@@ -96,27 +110,65 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                         <span>{game.awayTeam.displayName}</span>
                     </div>
 
-                    <div className="team-score">
-                        {scoreOrDash(game.awayTeam.score)}
-                    </div>
+                    <div className="team-right">
 
-                    <button
-                        className="team-odds"
-                        onClick={() =>
-                            onAddToBetSlip({
-                                gameId : game.gameId,
-                                matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
-                                teamName : game.awayTeam.displayName,
-                                odds : odds?.moneyline?.awayPrice
-                            })
-                        }
-                        disabled={!odds || odds.moneyline.awayPrice == null}
+                        <div className="team-score">
+                            {scoreOrDash(game.awayTeam.score)}
+                        </div>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: game.awayTeam.displayName,
+                                    betType: "moneyline",
+                                    odds: odds?.moneyline?.awayPrice
+                                })
+                            }
+                            disabled={!odds || odds?.moneyline?.awayPrice == null}
                         >
-                        {odds ? formatOdds(odds.moneyline.awayPrice) : "-"}
-                    </button>
+                            {formatOdds(odds?.moneyline?.awayPrice)}
+                        </button>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: game.awayTeam.displayName,
+                                    betType: "spread",
+                                    line: odds?.spread?.awayPoint,
+                                    odds: odds?.spread?.awayPrice
+                                })
+                            }
+                            disabled={!odds || odds?.spread?.awayPrice == null || odds?.spread?.awayPoint == null}
+                        >
+                            {formatLine(odds?.spread?.awayPoint)} ({formatOdds(odds?.spread?.awayPrice)})
+                        </button>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: "Over",
+                                    betType: "total",
+                                    line: odds?.total?.line,
+                                    odds: odds?.total?.overPrice
+                                })
+                            }
+                            disabled={!odds || odds?.total?.line == null || odds?.total?.overPrice == null}
+                        >
+                            O {odds?.total?.line} ({formatOdds(odds?.total?.overPrice)})
+                        </button>
+                    </div>
                 </div>
 
-                {/* Home team */}
+                {/* home team */}
                 <div className="team-row">
 
                     <div className="team-name">
@@ -130,25 +182,63 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                         <span>{game.homeTeam.displayName}</span>
                     </div>
 
-                    <div className="team-score">
-                        {scoreOrDash(game.homeTeam.score)}
-                    </div>
+                    <div className="team-right">
 
-                    <button
-                        className="team-odds"
-                        onClick={() =>
-                            onAddToBetSlip({
-                                gameId : game.gameId,
-                                matchup : `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
-                                teamName : game.homeTeam.displayName,
-                                odds : odds?.moneyline?.homePrice
-                            })
-                        }
-                        disabled={!odds || odds.moneyline.homePrice == null}
+                        <div className="team-score">
+                            {scoreOrDash(game.homeTeam.score)}
+                        </div>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: game.homeTeam.displayName,
+                                    betType: "moneyline",
+                                    odds: odds?.moneyline?.homePrice
+                                })
+                            }
+                            disabled={!odds || odds?.moneyline?.homePrice == null}
                         >
-                        {odds ? formatOdds(odds.moneyline.homePrice) : "-"}
-                    </button>
-               </div>
+                            {formatOdds(odds?.moneyline?.homePrice)}
+                        </button>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: game.homeTeam.displayName,
+                                    betType: "spread",
+                                    line: odds?.spread?.homePoint,
+                                    odds: odds?.spread?.homePrice
+                                })
+                            }
+                            disabled={!odds || odds?.spread?.homePrice == null || odds?.spread?.homePoint == null}
+                        >
+                            {formatLine(odds?.spread?.homePoint)} ({formatOdds(odds?.spread?.homePrice)})
+                        </button>
+
+                        <button
+                            className="team-odds"
+                            onClick={() =>
+                                onAddToBetSlip({
+                                    gameId: game.gameId,
+                                    matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
+                                    selection: "Under",
+                                    betType: "total",
+                                    line: odds?.total?.line,
+                                    odds: odds?.total?.underPrice
+                                })
+                            }
+                            disabled={!odds || odds?.total?.line == null || odds?.total?.underPrice == null}
+                        >
+                            U {odds?.total?.line} ({formatOdds(odds?.total?.underPrice)})
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
