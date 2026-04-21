@@ -94,7 +94,9 @@ public class BetService {
             betDao.insertBetLeg(
                     betId,                    // links to main bet
                     selection.gameId(),       // game
-                    selection.teamName(),     // team picked
+                    selection.selection(),   // team picked
+                    selection.betType(),
+                    selection.line(),
                     selection.odds()          // odds for this leg
             );
         }
@@ -154,8 +156,8 @@ public class BetService {
                 throw new IllegalArgumentException("Each selection must include a game ID.");
             }
 
-            if (selection.teamName() == null || selection.teamName().isBlank()) {
-                throw new IllegalArgumentException("Each selection must include a team name.");
+            if (selection.selection() == null || selection.selection().isBlank()) {
+                throw new IllegalArgumentException("Each selection must include a selection.");
             }
 
             if (selection.odds() == null) {
@@ -249,25 +251,59 @@ public class BetService {
     private String gradeLeg(BetLegHistoryDto leg) {
         GameSummaryDto game = findGameById(leg.gameId());
 
-        // if cant find game keep pending
-        if (game == null){
-            return "PENDING";
+        if (game == null) return "PENDING";
+        if (!isFinal(game)) return "PENDING";
+
+        Integer homeScore = game.homeTeam().score();
+        Integer awayScore = game.awayTeam().score();
+
+        if (homeScore == null || awayScore == null) return "PENDING";
+
+        String home = game.homeTeam().displayName();
+        String away = game.awayTeam().displayName();
+
+        // MONEYLINE
+        if ("moneyline".equalsIgnoreCase(leg.betType())) {
+            String winningTeam = homeScore > awayScore ? home : away;
+
+            if (winningTeam.equalsIgnoreCase(leg.selection())) {
+                return "WON";
+            }
+            return "LOST";
         }
 
-        // not over
-        if (!isFinal(game)){
-            return "PENDING";
-        }
+        // SPREAD
+        if ("spread".equalsIgnoreCase(leg.betType())) {
+            double adjustedHome = homeScore;
+            double adjustedAway = awayScore;
 
-        String winningTeam = getWinningTeam(game);
+            if (leg.selection().equalsIgnoreCase(home)) {
+                adjustedHome += leg.line();
+            } else {
+                adjustedAway += leg.line();
+            }
 
-        // if seleected team won, leg won
-        if ((winningTeam != null && winningTeam.equalsIgnoreCase(leg.team()))){
+            if (adjustedHome > adjustedAway) return "WON";
+            if (adjustedAway > adjustedHome) return "LOST";
+
+            // make push later
             return "WON";
         }
 
-        // otherwise lost
-        return "LOST";
+        // TOTAL
+        if ("total".equalsIgnoreCase(leg.betType())) {
+            double totalScore = homeScore + awayScore;
+
+            if ("Over".equalsIgnoreCase(leg.selection())) {
+                return totalScore > leg.line() ? "WON" : "LOST";
+            }
+
+            if ("Under".equalsIgnoreCase(leg.selection())) {
+                return totalScore < leg.line() ? "WON" : "LOST";
+            }
+        }
+
+        return "PENDING";
     }
 
     // find the game by id, check by 7 day window

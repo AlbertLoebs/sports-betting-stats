@@ -20,7 +20,9 @@ CREATE TABLE IF NOT EXISTS bet_legs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     bet_id INTEGER NOT NULL,
     game_id TEXT NOT NULL,
-    team TEXT NOT NULL,
+    selection TEXT NOT NULL,
+    bet_type TEXT NOT NULL,
+    line REAL,
     odds INTEGER NOT NULL,
     status TEXT NOT NULL,
     FOREIGN KEY (bet_id) REFERENCES bets(id)

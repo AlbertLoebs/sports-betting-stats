@@ -31,10 +31,10 @@ public class BetDao {
         );
     }
 
-    public void insertBetLeg(Long betId, String gameId, String team, int odds) {
-        String sql = "INSERT INTO bet_legs (bet_id, game_id, team, odds, status) VALUES (?, ?, ?, ?, ?)";
+    public void insertBetLeg(Long betId, String gameId, String selection, String betType, Double line, int odds) {
+        String sql = "INSERT INTO bet_legs (bet_id, game_id, selection, bet_type, line, odds, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        jdbc.update(sql, betId, gameId, team, odds, "PENDING");
+        jdbc.update(sql, betId, gameId, selection,betType,line, odds, "PENDING");
     }
 
     public List<BetHistoryDto> getBetHistory(){
@@ -62,16 +62,18 @@ public class BetDao {
 
     public List<BetLegHistoryDto> getLegsForBet(Long betId) {
         String sql = """
-                SELECT id, game_id, team, odds, status
-                FROM bet_legs
-                WHERE bet_id = ?
-                ORDER BY id ASC
-                """;
+            SELECT id, game_id, selection, bet_type, line, odds, status
+            FROM bet_legs
+            WHERE bet_id = ?
+            ORDER BY id ASC
+            """;
 
         return jdbc.query(sql, (rs, rowNum) -> new BetLegHistoryDto(
                 rs.getLong("id"),
                 rs.getString("game_id"),
-                rs.getString("team"),
+                rs.getString("selection"),
+                rs.getString("bet_type"),
+                rs.getObject("line") != null ? rs.getDouble("line") : null,
                 rs.getInt("odds"),
                 rs.getString("status")
         ), betId);
