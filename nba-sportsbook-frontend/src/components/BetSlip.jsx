@@ -2,14 +2,14 @@ import { useMemo, useState } from "react";
 import "./BetSlip.css"
 import { placeBet } from "../services/BetApi";
 
-function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
+function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet }) {
     const [wager, setWager] = useState("");
     const [loading, setLoading] = useState(false);
     const [betError, setBetError] = useState("");
     const [betMessage, setBetMessage] = useState("");
 
-    function formatOdds(price){
-        if (price == null){
+    function formatOdds(price) {
+        if (price == null) {
             return "-";
         } else {
             return price > 0 ? `+${price}` : `${price}`
@@ -17,17 +17,29 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
     }
 
     // converting to decimal for easier calc
-    function americanToDecimal(americanOdds){
-        if (americanOdds > 0){
+    function americanToDecimal(americanOdds) {
+        if (americanOdds > 0) {
             return 1 + (americanOdds / 100)
         }
         return 1 + (100 / Math.abs(americanOdds))
     }
 
+    function formatSelectionText(selection) {
+        if (selection.betType === "spread") {
+            return `${selection.selection} ${selection.line > 0 ? "+" : ""}${selection.line}`;
+        }
+
+        if (selection.betType === "total") {
+            return `${selection.selection} ${selection.line}`;
+        }
+
+        return selection.selection;
+    }
+
     // calc deicmal odds for parlay
     const combinedDecimalOdds = useMemo(() => {
         // no selections = 0
-        if (selections.length === 0) {return 0}
+        if (selections.length === 0) { return 0 }
 
         // mult all selections
         return selections.reduce((total, selection) => {
@@ -66,7 +78,7 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
     }, [wager, combinedDecimalOdds]);
 
     // called when user clicks place bet
-    async function handlePlaceBet(){
+    async function handlePlaceBet() {
         try {
             setBetError("")
             setBetMessage("")
@@ -74,12 +86,12 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
             const wagerNumber = Number(wager);
 
             // small frontend validation
-            if (selections.length === 0){
+            if (selections.length === 0) {
                 setBetError("Add at least one selection")
                 return;
             }
 
-            if(!wagerNumber || wagerNumber < 0){
+            if (!wagerNumber || wagerNumber < 0) {
                 setBetError("Enter a valid wager")
                 return
             }
@@ -88,12 +100,14 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
 
             // send parlay to the backend
             const result = await onPlaceBet({
-                selections: selections.map((selections) => ({
-                    gameId : selections.gameId,
-                    teamName : selections.teamName,
-                    odds : selections.odds
+                selections: selections.map((selection) => ({
+                    gameId: selection.gameId,
+                    selection: selection.selection,
+                    betType: selection.betType,
+                    line: selection.line,
+                    odds: selection.odds
                 })),
-                wager : wagerNumber
+                wager: wagerNumber
             });
             // show a success msg
             setBetMessage("Bet placed!")
@@ -109,7 +123,7 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
     }
 
     return (
-     <div className="bet-slip">
+        <div className="bet-slip">
 
             <h3>Bet Slip</h3>
 
@@ -129,7 +143,7 @@ function BetSlip({ selections, onRemoveSelection, onClearSlip, onPlaceBet}){
                                     </div>
 
                                     <div className="bet-slip-pick">
-                                        {selection.teamName} {formatOdds(selection.odds)}
+                                        {formatSelectionText(selection)} {formatOdds(selection.odds)}
                                     </div>
                                 </div>
 
