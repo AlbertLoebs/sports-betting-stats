@@ -63,25 +63,25 @@ public class UserDao {
     }
 
     // get current balance for a user in cents
-    public long getBalanceCents(String username){
-        String sql = "SELECT balance_cents FROM users WHERE username = ?";
+    public long getBalanceCents(Long userId){
+        String sql = "SELECT balance_cents FROM users WHERE id = ?";
 
         // queryForObject runs the query and returns the value
-        return jdbc.queryForObject(sql, Long.class, username);
+        return jdbc.queryForObject(sql, Long.class, userId);
     }
 
     // increase balance
-    public void deposit(String username, long amount){
-        String sql = "UPDATE users SET balance_cents = balance_cents + ? WHERE username = ?";
+    public void deposit(Long userId, long amount){
+        String sql = "UPDATE users SET balance_cents = balance_cents + ? WHERE id = ?";
 
-        jdbc.update(sql, amount, username);
+        jdbc.update(sql, amount, userId);
     }
 
     // withdraw
-    public void withdraw(String username, long amount){
-        String sql = "UPDATE users SET balance_cents = balance_cents - ? WHERE username = ?";
+    public void withdraw(Long userId, long amount){
+        String sql = "UPDATE users SET balance_cents = balance_cents - ? WHERE id = ?";
 
-        jdbc.update(sql, amount, username);
+        jdbc.update(sql, amount, userId);
     }
 
     public void updateBalanceById(Long userId, long newBalanceCents) {

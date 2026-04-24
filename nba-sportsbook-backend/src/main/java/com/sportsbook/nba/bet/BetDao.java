@@ -18,9 +18,12 @@ public class BetDao {
     }
 
     public Long insertBet(Bet bet){
-        String sql = " INSERT INTO bets (wager_cents, combined_odds, potential_payout_cents, status) VALUES (?, ?, ?, ?)";
+        String sql = """
+        INSERT INTO bets (user_id, wager_cents, combined_odds, potential_payout_cents, status)
+        VALUES (?, ?, ?, ?, ?)
+        """;
 
-        jdbc.update(sql, bet.getWagerCents(), bet.getCombinedOdds(), bet.getPotentialPayoutCents(), bet.getStatus());
+        jdbc.update(sql, bet.getUserId(), bet.getWagerCents(), bet.getCombinedOdds(), bet.getPotentialPayoutCents(), bet.getStatus());
 
 
         // This returns the ID of the last row inserted
@@ -39,7 +42,7 @@ public class BetDao {
 
     public List<BetHistoryDto> getBetHistory(){
         String sql = """
-                SELECT id, wager_cents, combined_odds, potential_payout_cents, status, created_at
+                SELECT id, user_id, wager_cents, combined_odds, potential_payout_cents, status, created_at
                 FROM bets
                 ORDER BY created_at DESC, id DESC
         """;
@@ -49,6 +52,7 @@ public class BetDao {
 
             return new BetHistoryDto(
                     betId,
+                    rs.getLong("user_id"),
                     rs.getInt("wager_cents"),
                     rs.getInt("combined_odds"),
                     rs.getInt("potential_payout_cents"),
@@ -81,7 +85,7 @@ public class BetDao {
 
     public List<BetHistoryDto> getPendingBets() {
         String sql = """
-            SELECT id, wager_cents, combined_odds, potential_payout_cents, status, created_at
+            SELECT id, user_id wager_cents, combined_odds, potential_payout_cents, status, created_at
             FROM bets
             WHERE status = 'PENDING'
             ORDER BY created_at ASC, id ASC
@@ -92,6 +96,7 @@ public class BetDao {
 
             return new BetHistoryDto(
                     betId,
+                    rs.getLong("user_id"),
                     rs.getInt("wager_cents"),
                     rs.getInt("combined_odds"),
                     rs.getInt("potential_payout_cents"),

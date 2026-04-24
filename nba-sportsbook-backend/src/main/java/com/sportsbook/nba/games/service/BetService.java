@@ -37,7 +37,7 @@ public class BetService {
 
     // main method to place a bet
     @Transactional
-    public PlaceBetResponseDto placeBet(PlaceBetRequestDto request){
+    public PlaceBetResponseDto placeBet(Long userId, PlaceBetRequestDto request){
         // require at least one selection
         if (request.selections() == null || request.selections().isEmpty()){
             throw new IllegalArgumentException("At least one selection is required");
@@ -63,7 +63,7 @@ public class BetService {
                 .intValue();
 
         // get current balance
-        BigDecimal currentBalance = balanceService.getBalance();
+        BigDecimal currentBalance = balanceService.getBalance(userId);
 
         // user has enough money
         if (wagerDollars.compareTo(currentBalance) > 0) {
@@ -80,6 +80,7 @@ public class BetService {
         int payoutCents = (int)(wagerCents * combinedDecimal);
 
         Bet bet = new Bet();
+        bet.setUserId(userId);
         bet.setWagerCents(wagerCents);             // total wager
         bet.setCombinedOdds(combinedOdds);         // parlay odds
         bet.setPotentialPayoutCents(payoutCents);  // possible payout
@@ -102,7 +103,7 @@ public class BetService {
         }
 
         // remove wager from user's balance
-        BalanceResponseDto updated = balanceService.withdraw(wagerDollars);
+        BalanceResponseDto updated = balanceService.withdraw(userId, wagerDollars);
 
         // get new balance after bet
         BigDecimal newBalance = updated.balance();
@@ -242,7 +243,7 @@ public class BetService {
                 BigDecimal payoutDollars = BigDecimal.valueOf(bet.potentialPayoutCents())
                         .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
-                balanceService.deposit(payoutDollars);
+                balanceService.deposit(bet.userId(), payoutDollars);
             }
         }
     }

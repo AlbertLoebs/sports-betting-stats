@@ -18,7 +18,7 @@ public class BalanceService {
     }
 
     // use a single demo for now
-    private static final String USERNAME = "Demo";
+    //private static final String USERNAME = "Demo";
 
     // convert dollars to cents
     private long toCents(BigDecimal amount){
@@ -30,43 +30,43 @@ public class BalanceService {
         return BigDecimal.valueOf(cents).divide(BigDecimal.valueOf(100));
     }
 
-    public BalanceResponseDto deposit(BigDecimal amount) {
+    public BalanceResponseDto deposit(Long userId, BigDecimal amount) {
         validateAmount(amount);
 
         // convert input dollars to cents
         long cents = toCents(amount);
 
         // update the db
-        userDao.deposit(USERNAME, cents);
+        userDao.deposit(userId, cents);
 
         // fetch updated balance from db
-        long updated = userDao.getBalanceCents(USERNAME);
+        long updated = userDao.getBalanceCents(userId);
 
         // convert back to dollars for response
         return new BalanceResponseDto(toDollars(updated));
     }
 
-    public BalanceResponseDto withdraw(BigDecimal amount) {
+    public BalanceResponseDto withdraw(Long userId, BigDecimal amount) {
         validateAmount(amount);
 
         long cents = toCents(amount);
 
         // get current balacne from db
-        long current = userDao.getBalanceCents(USERNAME);
+        long current = userDao.getBalanceCents(userId);
 
         if (cents > current) {
             throw new IllegalArgumentException("Insufficient balance");
         }
 
         // update db
-        userDao.withdraw(USERNAME, cents);
-        long updated = userDao.getBalanceCents(USERNAME);
+        userDao.withdraw(userId, cents);
+        long updated = userDao.getBalanceCents(userId);
         return new BalanceResponseDto(toDollars(updated));
     }
 
-    public BigDecimal getBalance() {
+    public BigDecimal getBalance(Long userId) {
         // read balance from db
-        long cents = userDao.getBalanceCents(USERNAME);
+        long cents = userDao.getBalanceCents(userId);
 
         // convert to dollars for frontend
         return toDollars(cents);

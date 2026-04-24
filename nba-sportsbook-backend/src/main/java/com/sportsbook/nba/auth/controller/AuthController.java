@@ -7,6 +7,7 @@ import com.sportsbook.nba.auth.service.AuthService;
 import com.sportsbook.nba.user.User;
 import com.sportsbook.nba.user.UserDao;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,24 +51,23 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public AuthResponseDto me(HttpSession session) {
+    public ResponseEntity<AuthResponseDto> me(HttpSession session) {
 
         // pull userId from session
         Object userIdObj = session.getAttribute("userId");
 
         if (userIdObj == null) {
-            throw new RuntimeException("Not logged in");
+            return ResponseEntity.status(401).build();
         }
 
         Long userId = (Long) userIdObj;
-
         User user = userDao.findById(userId);
 
         if (user == null) {
-            throw new RuntimeException("User not found");
+            return ResponseEntity.status(401).build();
         }
 
-        return new AuthResponseDto(user.getId(), user.getUsername());
+        return ResponseEntity.ok(new AuthResponseDto(user.getId(), user.getUsername()));
     }
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 public record BetHistoryDto(
         Long id,
+        Long userId,
         Integer wagerCents,
         Integer combinedOdds,
         Integer potentialPayoutCents,

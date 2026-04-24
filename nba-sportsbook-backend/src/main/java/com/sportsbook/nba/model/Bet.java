@@ -7,6 +7,7 @@ public class Bet {
     private Integer combinedOdds;
     private String status;
     private Integer potentialPayoutCents;
+    private Long userId;
 
     public Bet(){}
 
@@ -28,5 +29,13 @@ public class Bet {
     public Integer getPotentialPayoutCents(){return potentialPayoutCents;}
     public void setPotentialPayoutCents(Integer potentialPayoutCents) {
         this.potentialPayoutCents = potentialPayoutCents;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 }

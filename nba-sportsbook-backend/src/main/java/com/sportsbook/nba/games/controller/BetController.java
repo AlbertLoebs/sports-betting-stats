@@ -4,6 +4,7 @@ import com.sportsbook.nba.bet.dto.BetHistoryDto;
 import com.sportsbook.nba.games.dto.PlaceBetRequestDto;
 import com.sportsbook.nba.games.dto.PlaceBetResponseDto;
 import com.sportsbook.nba.games.service.BetService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +12,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bets")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = "http://localhost:5173", allowCredentials = "true")
 public class BetController {
 
     private final BetService betService;
@@ -22,19 +23,18 @@ public class BetController {
 
     // endpoint handles bets /api/bets/place
     @PostMapping("place")
-    public ResponseEntity<?> placeBet(@RequestBody PlaceBetRequestDto request){
+    public PlaceBetResponseDto placeBet(@RequestBody PlaceBetRequestDto request, HttpSession session){
 
-        try {
-            // call service to process bet
-            PlaceBetResponseDto response = betService.placeBet(request);
+        // get logged-in user from session
+        Object userIdObj = session.getAttribute("userId");
 
-            // return success (http 2000)
-            return ResponseEntity.ok(response);
-
-        } catch (IllegalArgumentException e){
-            // if validation fails return http 400
-            return ResponseEntity.badRequest().body(e.getMessage());
+        if (userIdObj == null) {
+            throw new RuntimeException("Not logged in");
         }
+
+        Long userId = (Long) userIdObj;
+
+        return betService.placeBet(userId, request);
     }
 
     @GetMapping("/history")
