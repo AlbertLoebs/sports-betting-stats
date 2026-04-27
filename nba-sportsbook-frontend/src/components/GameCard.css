@@ -40,16 +40,15 @@
 
 .team-right {
     display: grid;
-    grid-template-columns: 40px 70px 110px 110px;
+    grid-template-columns: 55px 75px 110px 110px;
     align-items: center;
-    gap: 8px;
-    width: 354px;
-    min-width: 0;
+    gap: 14px;
+    width: 392px;
 }
 
 .team-row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 354px;
+    grid-template-columns: minmax(0, 1fr) 392px;
     align-items: center;
     gap: 12px;
 }
@@ -63,8 +62,9 @@
 }
 
 .team-name span {
-    white-space: nowrap;
-}
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.2;}
 
 .team-logo {
     width: 26px;
@@ -134,8 +134,8 @@
 
 .header-right {
     display: grid;
-    grid-template-columns: 40px 70px 110px 110px;
-    gap: 8px;
+    grid-template-columns: 55px 75px 110px 110px;
+    gap: 14px;
     font-size: 11px;
     font-weight: 700;
     color: #94a3b8;

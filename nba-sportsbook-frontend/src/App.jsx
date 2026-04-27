@@ -59,7 +59,7 @@ useEffect(() => {
 
   return (
     <BrowserRouter>
-      <Navbar balance={balance} setBalance={setBalance} currentUser={currentUser}/>
+      <Navbar balance={balance} setBalance={setBalance} currentUser={currentUser} setCurrentUser={setCurrentUser}/>
 
       <Routes>
         <Route path="/" element={<GamesPage setBalance={setBalance} />} />

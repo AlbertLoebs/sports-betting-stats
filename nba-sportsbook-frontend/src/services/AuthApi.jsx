@@ -51,10 +51,14 @@ export async function fetchCurrentUser() {
 }
 
 
-// Log user
+// Logout user
 export async function logoutUser() {
-    await fetch(`${API_BASE}/logout`, {
+    const response = await fetch(`${API_BASE}/logout`, {
         method: "POST",
         credentials: "include"
     });
+
+    if (!response.ok) {
+        throw new Error("Logout failed");
+    }
 }

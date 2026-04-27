@@ -36,66 +36,68 @@ function GameDetailsPage(){
     }
 
     return (
-        <div className="game-details-page">
+    <div className="game-details-page">
 
-        {/* page title */}
-        <h1> {gameDetails.awayTeam} @ {gameDetails.homeTeam} </h1>
+        <h1>{gameDetails.awayTeam} @ {gameDetails.homeTeam}</h1>
 
-        { /* game status */}
         <p className="game-status">
             {gameDetails.status}
         </p>
 
-        {/* loop through both teams */}
-            {gameDetails.teams.map((team) => (
+        {gameDetails.teams?.length > 0 ? (
+            gameDetails.teams.map((team) => (
                 <div key={team.abbreviation} className="team-section">
 
-                    {/* team name */}
                     <h2>{team.teamName}</h2>
 
-                    {/* player stats table */}
-                    <table className="stats-table">
-                        <thead>
-                        <tr>
-                            <th>Player</th>
-                            <th>MIN</th>
-                            <th>PTS</th>
-                            <th>REB</th>
-                            <th>AST</th>
-                            <th>STL</th>
-                            <th>BLK</th>
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        {team.players.map((player) => (
-                            <tr key={player.name}>
-                                <td className="player-cell">
-
-                                    {/* player headshot */}
-                                    <img
-                                        src={player.headshotUrl}
-                                        alt={player.name}
-                                        className="player-headshot"
-                                    />
-
-                                    {player.name}
-                                </td>
-
-                                <td>{player.minutes}</td>
-                                <td>{player.points}</td>
-                                <td>{player.rebounds}</td>
-                                <td>{player.assists}</td>
-                                <td>{player.steals}</td>
-                                <td>{player.blocks}</td>
+                    {team.players?.length > 0 ? (
+                        <table className="stats-table">
+                            <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>MIN</th>
+                                <th>PTS</th>
+                                <th>REB</th>
+                                <th>AST</th>
+                                <th>STL</th>
+                                <th>BLK</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            ))}
-        </div>
-    );
-}
+                            </thead>
 
+                            <tbody>
+                            {team.players.map((player) => (
+                                <tr key={player.name}>
+                                    <td className="player-cell">
+                                        {player.headshotUrl && (
+                                            <img
+                                                src={player.headshotUrl}
+                                                alt={player.name}
+                                                className="player-headshot"
+                                            />
+                                        )}
+
+                                        {player.name}
+                                    </td>
+
+                                    <td>{player.minutes ?? "-"}</td>
+                                    <td>{player.points ?? "-"}</td>
+                                    <td>{player.rebounds ?? "-"}</td>
+                                    <td>{player.assists ?? "-"}</td>
+                                    <td>{player.steals ?? "-"}</td>
+                                    <td>{player.blocks ?? "-"}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p>Stats will appear when the game starts.</p>
+                    )}
+                </div>
+            ))
+        ) : (
+            <p>Roster and stats are not available yet.</p>
+        )}
+    </div>
+);
+}
 export default GameDetailsPage;

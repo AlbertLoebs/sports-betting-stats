@@ -125,7 +125,8 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -133,7 +134,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     betType: "moneyline",
                                     odds: odds?.moneyline?.awayPrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.moneyline?.awayPrice == null}
                         >
                             {formatOdds(odds?.moneyline?.awayPrice)}
@@ -141,7 +142,9 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
+
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -150,7 +153,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     line: odds?.spread?.awayPoint,
                                     odds: odds?.spread?.awayPrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.spread?.awayPrice == null || odds?.spread?.awayPoint == null}
                         >
                             {formatLine(odds?.spread?.awayPoint)} ({formatOdds(odds?.spread?.awayPrice)})
@@ -158,7 +161,9 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
+                            
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -167,7 +172,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     line: odds?.total?.line,
                                     odds: odds?.total?.overPrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.total?.line == null || odds?.total?.overPrice == null}
                         >
                             O {odds?.total?.line} ({formatOdds(odds?.total?.overPrice)})
@@ -197,7 +202,9 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
+
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -205,7 +212,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     betType: "moneyline",
                                     odds: odds?.moneyline?.homePrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.moneyline?.homePrice == null}
                         >
                             {formatOdds(odds?.moneyline?.homePrice)}
@@ -213,7 +220,9 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
+
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -222,7 +231,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     line: odds?.spread?.homePoint,
                                     odds: odds?.spread?.homePrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.spread?.homePrice == null || odds?.spread?.homePoint == null}
                         >
                             {formatLine(odds?.spread?.homePoint)} ({formatOdds(odds?.spread?.homePrice)})
@@ -230,7 +239,8 @@ function GameCard({ game, odds, onAddToBetSlip }) {
 
                         <button
                             className="team-odds"
-                            onClick={() =>
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 onAddToBetSlip({
                                     gameId: game.gameId,
                                     matchup: `${game.awayTeam.displayName} @ ${game.homeTeam.displayName}`,
@@ -239,7 +249,7 @@ function GameCard({ game, odds, onAddToBetSlip }) {
                                     line: odds?.total?.line,
                                     odds: odds?.total?.underPrice
                                 })
-                            }
+                            }}
                             disabled={!odds || odds?.total?.line == null || odds?.total?.underPrice == null}
                         >
                             U {odds?.total?.line} ({formatOdds(odds?.total?.underPrice)})

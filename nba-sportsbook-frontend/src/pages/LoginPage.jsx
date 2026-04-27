@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { loginUser, registerUser } from "../services/AuthApi";
+import './LoginPage.css';
 
 function LoginPage( {setCurrentUser} ){
     const [username, setUsername] = useState("");
