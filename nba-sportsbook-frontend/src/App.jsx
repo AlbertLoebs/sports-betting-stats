@@ -7,12 +7,13 @@ import BetHistoryPage from './pages/BetHistoryPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { fetchCurrentUser } from './services/AuthApi';
 import LoginPage from './pages/LoginPage';
+import GameDetailsPage from './pages/GameDetailsPage';
 
 function App() {
    // shared balance state for whole app
   const [balance, setBalance] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(null);
+  const [loadingUser, setLoadingUser] = useState(true);
 
   // runs when app starts, checks if user has a session
 
@@ -63,6 +64,7 @@ useEffect(() => {
       <Routes>
         <Route path="/" element={<GamesPage setBalance={setBalance} />} />
         <Route path="/history" element={<BetHistoryPage />} />
+        <Route path="/games/:gameId" element={<GameDetailsPage />} />
       </Routes>
 
     </BrowserRouter>

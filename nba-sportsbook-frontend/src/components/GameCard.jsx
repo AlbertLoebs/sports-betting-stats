@@ -1,6 +1,10 @@
 import './GameCard.css';
+import { useNavigate } from "react-router-dom";
 
 function GameCard({ game, odds, onAddToBetSlip }) {
+
+    // used to navigate to game details page
+    const navigate = useNavigate();
 
     // convert the time from the backend into readable time
     function formatTime(timeString) {
@@ -62,7 +66,10 @@ function GameCard({ game, odds, onAddToBetSlip }) {
     }
 
     return (
-        <div className="game-card">
+        <div 
+            className="game-card" 
+            onClick={() => navigate(`/games/${game.gameId}`)}
+        >
 
             {/* top section status and start time */}
             <div className="game-top">
