@@ -14,14 +14,9 @@ import java.util.List;
 @Service
 public class GameDetailsService {
 
-    // spring HTTP client
     private final RestClient restClient = RestClient.create();
-
-    // used to parse ESPN JSON response
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-
-    // if the stat is missing, return -
     private String getStat(JsonNode stats, int index) {
         if (stats == null || !stats.isArray() || stats.size() <= index || stats.get(index) == null) {
             return "-";
@@ -30,26 +25,72 @@ public class GameDetailsService {
         return stats.get(index).asText();
     }
 
+    private TeamPlayerStatsDto fetchRosterTeam(JsonNode competitor) throws Exception {
+        String teamId = competitor.path("team").path("id").asText();
+        String teamName = competitor.path("team").path("displayName").asText();
+        String abbreviation = competitor.path("team").path("abbreviation").asText();
 
-    // Fetches box score/player stats for one game
+        String rosterUrl =
+                "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/"
+                        + teamId
+                        + "/roster";
+
+        String response = restClient.get()
+                .uri(rosterUrl)
+                .retrieve()
+                .body(String.class);
+
+        JsonNode rosterRoot = objectMapper.readTree(response);
+
+        List<PlayerStatsDto> players = new ArrayList<>();
+
+        JsonNode athletes = rosterRoot.path("athletes");
+
+        for (JsonNode athlete : athletes) {
+
+            String name = athlete.path("displayName").isMissingNode()
+                    ? "Unknown Player"
+                    : athlete.path("displayName").asText();
+
+            String headshotUrl = athlete.path("headshot").path("href").isMissingNode()
+                    ? ""
+                    : athlete.path("headshot").path("href").asText();
+
+            String position = athlete.path("position").path("abbreviation").isMissingNode()
+                    ? "-"
+                    : athlete.path("position").path("abbreviation").asText();
+
+            PlayerStatsDto player = new PlayerStatsDto(
+                    name,
+                    headshotUrl,
+                    position,
+                    "-", "-", "-", "-", "-", "-", "-", "-", "-"
+            );
+
+            players.add(player);
+        }
+
+        return new TeamPlayerStatsDto(
+                teamName,
+                abbreviation,
+                players
+        );
+    }
+
     public GameBoxScoreDto getGameDetails(String gameId) {
 
         try {
-            // build ESPN summary endpoint URL
             String url =
                     "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event="
                             + gameId;
 
-            // make API call to ESPN
             String response = restClient.get()
                     .uri(url)
                     .retrieve()
                     .body(String.class);
 
-            // parse raw JSON into tree structure
             JsonNode root = objectMapper.readTree(response);
 
-            // basic game info
             String status = root.path("header")
                     .path("competitions")
                     .get(0)
@@ -58,7 +99,6 @@ public class GameDetailsService {
                     .path("description")
                     .asText();
 
-            // team names
             JsonNode competitors = root.path("header")
                     .path("competitions")
                     .get(0)
@@ -74,13 +114,28 @@ public class GameDetailsService {
                     .path("displayName")
                     .asText();
 
-            // holds both teams
             List<TeamPlayerStatsDto> teams = new ArrayList<>();
 
-            // boxscore section from ESPN
             JsonNode playersNode = root.path("boxscore").path("players");
 
-            // loop through both teams
+            // Future games usually do not have boxscore player stats yet.
+            // In that case, fetch team rosters and show empty stat values.
+            if (playersNode.isMissingNode() || !playersNode.isArray() || playersNode.size() == 0) {
+                TeamPlayerStatsDto awayRoster = fetchRosterTeam(competitors.get(1));
+                TeamPlayerStatsDto homeRoster = fetchRosterTeam(competitors.get(0));
+
+                teams.add(awayRoster);
+                teams.add(homeRoster);
+
+                return new GameBoxScoreDto(
+                        gameId,
+                        status,
+                        homeTeam,
+                        awayTeam,
+                        teams
+                );
+            }
+
             for (JsonNode teamNode : playersNode) {
 
                 String teamName = teamNode.path("team")
@@ -97,7 +152,6 @@ public class GameDetailsService {
                         .get(0)
                         .path("athletes");
 
-                // build each player row
                 for (JsonNode playerNode : athleteRows) {
 
                     String name = playerNode.path("athlete")
@@ -116,7 +170,6 @@ public class GameDetailsService {
                             .path("href")
                             .asText();
 
-                    // ESPN stat indexes
                     PlayerStatsDto player = new PlayerStatsDto(
                             name,
                             headshotUrl,
@@ -135,7 +188,6 @@ public class GameDetailsService {
                     players.add(player);
                 }
 
-                // create team object
                 TeamPlayerStatsDto teamStats = new TeamPlayerStatsDto(
                         teamName,
                         abbreviation,
@@ -145,7 +197,6 @@ public class GameDetailsService {
                 teams.add(teamStats);
             }
 
-            // final response object
             return new GameBoxScoreDto(
                     gameId,
                     status,
