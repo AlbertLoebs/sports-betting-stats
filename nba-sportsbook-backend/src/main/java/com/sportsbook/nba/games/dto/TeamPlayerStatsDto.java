@@ -1,4 +1,9 @@
 package com.sportsbook.nba.games.dto;
 
-public record TeamPlayerStatsDto() {
-}
+import java.util.List;
+
+public record TeamPlayerStatsDto(
+        String teamName,
+        String abbreviation,
+        List<PlayerStatsDto> players
+) {}
