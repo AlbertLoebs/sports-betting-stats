@@ -16,3 +16,5 @@ nba-sportsbook-backend/.mvn/
 
 # Env
 .env
+ # db
+nba-sportsbook-backend/*.db
