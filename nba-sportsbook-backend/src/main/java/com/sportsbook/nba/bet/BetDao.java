@@ -40,12 +40,13 @@ public class BetDao {
         jdbc.update(sql, betId, gameId, selection,betType,line, odds, "PENDING");
     }
 
-    public List<BetHistoryDto> getBetHistory(){
+    public List<BetHistoryDto> getBetHistory(Long userId){
         String sql = """
-                SELECT id, user_id, wager_cents, combined_odds, potential_payout_cents, status, created_at
-                FROM bets
-                ORDER BY created_at DESC, id DESC
-        """;
+            SELECT id, user_id, wager_cents, combined_odds, potential_payout_cents, status, created_at
+            FROM bets
+            WHERE user_id = ?
+            ORDER BY created_at DESC, id DESC
+    """;
 
         return jdbc.query(sql, (rs, rowNum) -> {
             Long betId = rs.getLong("id");
@@ -60,8 +61,7 @@ public class BetDao {
                     rs.getString("created_at"),
                     getLegsForBet(betId)
             );
-        });
-
+        }, userId);
     }
 
     public List<BetLegHistoryDto> getLegsForBet(Long betId) {
@@ -85,7 +85,7 @@ public class BetDao {
 
     public List<BetHistoryDto> getPendingBets() {
         String sql = """
-            SELECT id, user_id wager_cents, combined_odds, potential_payout_cents, status, created_at
+            SELECT id, user_id, wager_cents, combined_odds, potential_payout_cents, status, created_at
             FROM bets
             WHERE status = 'PENDING'
             ORDER BY created_at ASC, id ASC

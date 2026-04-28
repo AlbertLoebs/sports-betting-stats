@@ -22,24 +22,36 @@ public class BetController {
     }
 
     // endpoint handles bets /api/bets/place
-    @PostMapping("place")
-    public PlaceBetResponseDto placeBet(@RequestBody PlaceBetRequestDto request, HttpSession session){
-
-        // get logged-in user from session
+    @PostMapping("/place")
+    public ResponseEntity<?> placeBet(@RequestBody PlaceBetRequestDto request, HttpSession session) {
         Object userIdObj = session.getAttribute("userId");
 
         if (userIdObj == null) {
-            throw new RuntimeException("Not logged in");
+            return ResponseEntity.status(401).body("Not logged in");
+        }
+
+        try {
+            PlaceBetResponseDto response =
+                    betService.placeBet((Long) userIdObj, request);
+
+            return ResponseEntity.ok(response);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<?> getHistory(HttpSession session) {
+        Object userIdObj = session.getAttribute("userId");
+
+        if (userIdObj == null) {
+            return ResponseEntity.status(401).body("Not logged in");
         }
 
         Long userId = (Long) userIdObj;
 
-        return betService.placeBet(userId, request);
-    }
-
-    @GetMapping("/history")
-    public List<BetHistoryDto> getHistory(){
-        return betService.getBetHistory();
+        return ResponseEntity.ok(betService.getBetHistory(userId));
     }
 
 }

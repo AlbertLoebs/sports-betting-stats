@@ -29,7 +29,7 @@ public class AuthController {
         User user = authService.register(request.username(), request.password());
 
         // remember who is logged in
-        session.setAttribute("user", user.getId());
+        session.setAttribute("userId", user.getId());
 
         // send back response
         return new AuthResponseDto(user.getId(), user.getUsername());
