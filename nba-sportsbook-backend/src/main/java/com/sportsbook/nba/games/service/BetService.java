@@ -73,7 +73,7 @@ public class BetService {
         // calculate combined decimal odds for parlay
         double combinedDecimal = calculateCombinedDecimalOdds(request.selections());
 
-        // convert decimal → american odds
+        // convert decimal 2 american odds
         int combinedOdds = decimalToAmerican(combinedDecimal);
 
         // calculate payout in cents
@@ -108,7 +108,7 @@ public class BetService {
         // get new balance after bet
         BigDecimal newBalance = updated.balance();
 
-        // convert payout cents → dollars for frontend
+        // convert payout cents 2 dollars for frontend
         BigDecimal payoutDollars = BigDecimal.valueOf(payoutCents)
                 .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
 
@@ -202,9 +202,9 @@ public class BetService {
     // when bet requested grade all pending bets
     // then return new history
     @Transactional
-    public List<BetHistoryDto> getBetHistory() {
+    public List<BetHistoryDto> getBetHistory(Long userId) {
         gradePendingBets();
-        return betDao.getBetHistory();
+        return betDao.getBetHistory(userId);
     }
 
     // check all pending bets, grade each leg, update entire bet
