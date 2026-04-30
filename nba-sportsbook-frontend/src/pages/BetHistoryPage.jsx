@@ -21,6 +21,11 @@ function BetHistoryPage() {
         return odds > 0 ? `+${odds}` : `${odds}`;
     }
 
+    function formatDate(dateString) {
+        if (!dateString) return "Unknown";
+        return new Date(dateString).toLocaleDateString();
+    }
+
     function formatCents(cents) {
         return (cents / 100).toLocaleString("en-US", {
             style: "currency",
@@ -48,11 +53,16 @@ function BetHistoryPage() {
                 <p>No bets yet</p>
             ) : (
                 <div className="bet-history-list">
-                    {bets.map((bet) => (
+                    {bets.map((bet, index) => (
                         <div key={bet.id} className="bet-card">
 
                             <div className="bet-header">
-                                <h3>Bet #{bet.id}</h3>
+                                <div className="bet-info">
+                                <h3>Bet #{bets.length - index}</h3>
+                                <p className="bet-date">
+                                    Placed: {formatDate(bet.createdAt)}
+                                </p>
+                                </div>
                                 <span className={`bet-status ${bet.status.toLowerCase()}`}>
                                     {bet.status}
                                 </span>
@@ -75,7 +85,7 @@ function BetHistoryPage() {
                                 {bet.legs.map((leg, index) => (
                                     <div key={leg.id} className="bet-leg-row">
                                         <span>
-                                            Leg {index + 1}: {formatBetLegText(leg)} ({formatOdds(leg.odds)})      
+                                            Leg {index + 1}: {formatBetLegText(leg)} ({formatOdds(leg.odds)})
                                         </span>
 
                                         <span className={`leg-status ${leg.status.toLowerCase()}`}>

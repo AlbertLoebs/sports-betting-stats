@@ -15,21 +15,22 @@
 }
 
 .bet-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  border-radius: 10px;
-  padding: 16px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 16px;
 }
 
 .bet-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 12px;
 }
 
 .bet-header h3 {
     margin: 0;
+    font-size: 1.1rem;
 }
 
 .bet-legs {
@@ -72,4 +73,16 @@
 
 .bet-history-error {
     color: red;
+}
+
+.bet-date {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #888;
+}
+
+.bet-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
